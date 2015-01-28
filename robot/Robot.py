@@ -4,12 +4,22 @@ __author__ = 'will'
 
 import math
 from serialServoCommander import SerialComms
+import viewer
 
 def triangle_angle(a,b,c):
-    return math.acos((a**2 - b**2 - c**2)/(-2*b*c))
+    if c == 0:
+        return 0
+    a = abs(a)
+    b = abs(b)
+    c = abs(c)
+
+    cosA = (a**2 - b**2 - c**2)/(-2*b*c)
+    # print "triangle:",a,b,c , " cos: ", cos
+    return math.acos(cosA)
 
 
-RATE = 10
+
+RATE = -13.88
 
 class Servo():
     def __init__(self, pin, pos0, rate, serial):
@@ -19,7 +29,8 @@ class Servo():
         self.serial = serial
 
     def move_to_angle(self, angle):
-        pos = 1500 + angle * self.rate
+        pos = int(1500 + angle * self.rate)
+        # print angle, pos
         self.serial.queue.put(lambda: self.serial.move_servo_to(self.pin, pos))
 
 
@@ -30,36 +41,52 @@ class Leg():
     position = None
     orientation = None
 
-    def __init__(self, position, panServo, tibiaServo, femurServo,tibiaLength,femurLength):
+    def __init__(self, position, panServo, femurServo,tibiaServo,tibiaLength,femurLength):
         self.position = position
         self.panServo = panServo
         self.tibiaServo = tibiaServo
         self.femurServo = femurServo
         self.tibiaLength = tibiaLength
         self.femurLength = femurLength
+        viewer.create()
 
 
 
+    def move_to(self, x, y, z):
+        dx = float(x) - self.position[0]
+        dy = float(y) - self.position[1]
+        dz = float(z) - self.position[2]
 
-        def move_to(x, y, z):
-            dist = math.sqrt(x-(self.position[0])**2 + (y-self.position[1])**2+(y-self.position[2])**2)  # total distance
-            height = z - self.position[2]
+        distxyz = math.sqrt(dx**2 + dy**2 + dz**2)  # total distance
+        print "total distance: ", distxyz, [dx,dy,dz]
 
-            # relevant Elbow angle !
-            distAngle = triangle_angle(dist,femurLength,tibiaLength)
-            AbsElbowAngle = distAngle
+        tibiaAngle = triangle_angle(distxyz, self.tibiaLength, self.femurLength)
 
-            tibiaAngle = triangle_angle(tibiaLength,femurLength,dist)
+        xydist = math.sqrt(dx**2 + dy**2)
+        dist_vectorAngle = math.atan2(dz,xydist)
 
-            xydist = math.sqrt((x-self.position[0])**2 + (y-self.position[1])**2)
-            xyzdist = dist
-            dist_vectorAngle = triangle_angle(xydist, xyzdist, height)
+        #relevant, shoulder tilt angle
+        AbsshoulderTiltAngle = triangle_angle( self.tibiaLength,self.femurLength,distxyz) + dist_vectorAngle
+        AbsshoulderTiltAngle = math.degrees(AbsshoulderTiltAngle)
 
-            #relevant, shoulder tilt angle!
-            AbsshoulderTiltAngle = dist_vectorAngle + tibiaAngle - math.pi/2
+        AbsshoulderPanAngle = math.degrees(math.atan2(x,y))
 
-            AbsshoulderPanAngle = math.atan(x/y)
+        tibiaAngle = math.degrees(tibiaAngle)
 
+        self.panServo.move_to_angle(AbsshoulderPanAngle)
+        self.femurServo.move_to_angle(AbsshoulderTiltAngle)
+        self.tibiaServo.move_to_angle(tibiaAngle -90)
+        print "angles: ", AbsshoulderPanAngle, AbsshoulderTiltAngle, tibiaAngle, dist_vectorAngle
+        print "position: ", x, y, z
+
+
+        pos0= [0,0]
+        pos1 = [math.cos(math.radians(AbsshoulderTiltAngle))*self.femurLength,
+                math.sin(math.radians(AbsshoulderTiltAngle))*self.femurLength,]
+
+        pos2 = [pos1[0] + math.cos(math.radians(AbsshoulderTiltAngle-(180-tibiaAngle)))*self.tibiaLength,
+                pos1[1] + math.sin(math.radians(AbsshoulderTiltAngle-(180-tibiaAngle)))*self.tibiaLength,]
+        viewer.update_lines([pos0,pos1,pos2])
 
 
 
@@ -68,70 +95,46 @@ class Robot():
     length = 150
     heigth = 30
 
-    serial = SerialComms()
-
-    servos = [Servo(pin=2, rate=RATE, pos0=1500, serial=serial),
-              Servo(pin=3, rate=RATE, pos0=1500, serial=serial),
-              Servo(pin=4, rate=RATE, pos0=1500, serial=serial),
-              Servo(pin=5, rate=RATE, pos0=1500, serial=serial),
-              Servo(pin=6, rate=RATE, pos0=1500, serial=serial),
-              Servo(pin=7, rate=RATE, pos0=1500, serial=serial),
-              Servo(pin=8, rate=RATE, pos0=1500, serial=serial),
-              Servo(pin=9, rate=RATE, pos0=1500, serial=serial),
-              Servo(pin=10, rate=RATE, pos0=1500, serial=serial),
-              Servo(pin=11, rate=RATE, pos0=1500, serial=serial),
-              Servo(pin=12, rate=RATE, pos0=1500, serial=serial),
-              Servo(pin=13, rate=RATE, pos0=1500, serial=serial)]
-
-
-
-    legs = {"front_left" : Leg((-width/2,  -length/2, heigth), 2, 3, 4, 100, 100),
-            "front_right": Leg(( width/2,  -length/2, heigth), 5, 6, 7, 100, 100),
-            "rear_right" : Leg(( width/2,   length/2, heigth), 8, 9, 10, 100, 100),
-            "rear_left"  : Leg((-width/2,   length/2, heigth), 11, 12, 13, 100, 100)}
-
-
 
     def __init__(self):
+
+        width = 100
+        length = 150
+        heigth = 30
+        self.serial = SerialComms()
+        serial = self.serial
+
+        self.servos = [Servo(pin=2, rate=-RATE, pos0=1500, serial=serial),
+                  Servo(pin=3, rate=RATE, pos0=1500, serial=serial),
+                  Servo(pin=4, rate=RATE, pos0=1500, serial=serial),
+                  Servo(pin=5, rate=RATE, pos0=1500, serial=serial),
+                  Servo(pin=6, rate=RATE, pos0=1500, serial=serial),
+                  Servo(pin=7, rate=RATE, pos0=1500, serial=serial),
+                  Servo(pin=8, rate=RATE, pos0=1500, serial=serial),
+                  Servo(pin=9, rate=RATE, pos0=1500, serial=serial),
+                  Servo(pin=10, rate=RATE, pos0=1500, serial=serial),
+                  Servo(pin=11, rate=RATE, pos0=1500, serial=serial),
+                  Servo(pin=12, rate=RATE, pos0=1500, serial=serial),
+                  Servo(pin=13, rate=RATE, pos0=1500, serial=serial)]
+        servos = self.servos
+
+
+        self.legs = {"front_left" : Leg((width/2,   length/2, heigth), servos[1], servos[0], servos[2], 50, 40),}
+                # "front_right": Leg((-width/2,  length/2, heigth), 5, 6, 7, 100, 100),
+                # "rear_right" : Leg((-width/2, -length/2, heigth), 8, 9, 10, 100, 100),
+                # "rear_left"  : Leg((width/2,  -length/2, heigth), 11, 12, 13, 100, 100)}
+
+        print self.legs["front_left"].position
         self.serial.start()
-        for i in range(10):
-            for servo in self.servos:
-                print "moving"
-                servo.move_to_angle(i*5)
-            time.sleep(3)
+        for i in xrange(10, 90):
+            # for servo in self.servos:
+            #    servo.move_to_angle(0)
+            self.legs['front_left'].move_to(90,75+i,0)
+            time.sleep(0.1)
         print "done"
         self.serial.running = False
         self.serial.join()
 
 
 
-
-
 Robot()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

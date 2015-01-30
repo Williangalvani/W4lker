@@ -105,7 +105,6 @@ class Robot():
         heigth = 30
         self.serial = SerialComms()
         serial = self.serial
-
         self.servos = [Servo(pin=2, rate=-RATE, pos0=1500, serial=serial),
                        Servo(pin=3, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=4, rate=RATE, pos0=1500, serial=serial),
@@ -120,11 +119,19 @@ class Robot():
                        Servo(pin=13, rate=RATE, pos0=1500, serial=serial)]
         servos = self.servos
 
-        self.legs = {"front_left": Leg((width / 2, length / 2, heigth), servos[1], servos[0], servos[2], 60, 30), }
+        self.legs = {"front_left": Leg((width / 2, length / 2, heigth), servos[1], servos[0], servos[2], 45, 80), }
         # "front_right": Leg((-width/2,  length/2, heigth), 5, 6, 7, 100, 100),
         # "rear_right" : Leg((-width/2, -length/2, heigth), 8, 9, 10, 100, 100),
         # "rear_left"  : Leg((width/2,  -length/2, heigth), 11, 12, 13, 100, 100)}
+        self.feet = [False,False,False,False]
 
+    def read_feet(self):
+        self.serial.queue.put(lambda: self.serial.read_pins())
+        data = self.serial.input_pins
+        self.feet = [not ((data >> bit) & 1) for bit in range(4 - 1, -1, -1)]
+        print self.feet
+
+    def run(self):
         print self.legs["front_left"].position
         self.serial.start()
         for servo in self.servos:
@@ -133,13 +140,19 @@ class Robot():
         for i in xrange(-40,60):
             # for servo in self.servos:
             # servo.move_to_angle(0)
-            self.legs['front_left'].move_to(90, 100, i)
+            self.legs['front_left'].move_to(90, 115, -i)
             print i
             time.sleep(0.03)
+            self.read_feet()
+            if self.feet[-1]:
+                time.sleep(10)
+                break
+
         print "done"
         self.serial.running = False
         self.serial.join()
         time.sleep(5)
 
 
-Robot()
+r = Robot()
+r.run()

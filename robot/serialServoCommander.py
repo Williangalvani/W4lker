@@ -2,7 +2,7 @@ import serial
 from threading import Thread
 import time
 from Queue import Queue
-
+import time
 
 
 pos = 0
@@ -16,6 +16,7 @@ class SerialComms(Thread):
         self.ser = serial.Serial(port='/dev/ttyUSB0',
                         baudrate=115200,
                         timeout=0.0001)
+        self.input_pins = 15
         self.running = True
         self.queue = Queue()
         print "serial connection stabilished, starting thread"
@@ -37,6 +38,22 @@ class SerialComms(Thread):
             #     print data
         self.ser.close()
 
+    def read_pins(self):
+        self.ser.write(">$b")
+        buff = ""
+        start = time.time()
+        while "pins:" not in buff:
+            if time.time() - start > 0.05:
+                return
+            buff += self.ser.read(1)
+        try:
+            self.ser.read(1)
+            data = ord(self.ser.read(1)) & 0b00001111
+        except:
+            return
+        # print "data:", data , buff
+        self.input_pins = data
+
 
     def send_16(self, value):
         high = chr(value >> 8)
@@ -48,6 +65,12 @@ class SerialComms(Thread):
         self.ser.write(">$a")
         self.ser.write(chr(servo))
         self.send_16(pos)
+        for i in range(10):
+            if 'a' in self.ser.read(1):
+                if '!' in self.ser.read(1):
+                    # print "ok!"
+                    return
+
 
     def read_imu(self):
         self.ser.write(">$c")

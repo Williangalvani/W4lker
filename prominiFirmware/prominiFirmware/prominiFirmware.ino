@@ -22,12 +22,15 @@ imu_setup();
     servo[i].writeMicroseconds(servos_pos[i]);
   }
   Serial.begin(115200);
+  DDRC &= 0x11110000;
+  PORTC |= 0b00001111;
 }
 
 
 void respond_with_pins_state()
 {
-    Serial.println("responding with states");
+    Serial.print("pins:");
+    Serial.println(PINC);
 }
 
 void write_to_servo(int nservo, int value)
@@ -52,7 +55,7 @@ void handleSerial()
      switch(current_state)
      {
         case STANDBY:
-            Serial.println("Standy...");
+//            Serial.println("Standy...");
             if(newData==header[0])
             {
                 current_state = GETTING_HEADER;
@@ -60,7 +63,7 @@ void handleSerial()
         break;
         case GETTING_HEADER:
 
-            Serial.println("receiving header");
+//            Serial.println("receiving header");
             if(newData==header[1])
             {
                 current_state = WAITING_COMMAND;
@@ -72,17 +75,17 @@ void handleSerial()
 
         case WAITING_COMMAND:
 
-            Serial.print("Waiting for command...");
+//            Serial.print("Waiting for command...");
             Serial.println(newData);
             switch(newData)
             {
             case COMMAND_WRITE:
-                Serial.println("got servo request");
+//                Serial.println("got servo request");
                 current_state = WAITING_TARGET;
             break;
 
             case COMMAND_READ_IMU:
-                Serial.println("got imu request");
+//                Serial.println("got imu request");
                 respond_with_imu();
                 current_state = STANDBY;
             break;
@@ -113,11 +116,14 @@ void handleSerial()
             write_to_servo(target, newPosition);
 
             current_state = STANDBY;
-            Serial.print("Writing pos ");
-            Serial.print(newPosition);
-            Serial.print(" to servo ");
-            Serial.println(target);
+//            Serial.print("Writing pos ");
+//            Serial.print(newPosition);
+//            Serial.print(" to servo ");
+//            Serial.println(target);
+            Serial.print(COMMAND_WRITE);
+            Serial.print('!');
         break;
+
 
      }
   }

@@ -20,6 +20,5 @@ def create():
 
 def update_lines(lines):
     patch.set_xy(lines)
-    time.sleep(0.1)
     plt.draw()
     plt.pause(0.0001)

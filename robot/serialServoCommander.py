@@ -27,11 +27,11 @@ class SerialComms(Thread):
 
             if not self.queue.empty():
                 f = self.queue.get()
-                self.ser.readall()
+                # self.ser.readall()
                 f()
-                time.sleep(0.01)
+                # time.sleep(0.01)
             else:
-                time.sleep(0.01)
+                time.sleep(0.005)
             # data= self.ser.readall()
             # if len(data):
             #     print data

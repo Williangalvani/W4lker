@@ -30,7 +30,7 @@ class Servo():
         self.serial = serial
 
     def move_to_angle(self, angle):
-        pos = int(1500 + angle * self.rate)
+        pos = int(self.pos0 + angle * self.rate)
         # print angle, pos
         self.serial.queue.put(lambda: self.serial.move_servo_to(self.pin, pos))
 
@@ -53,9 +53,22 @@ class Leg():
 
 
     def move_to(self, x, y, z):
-        dx = float(x) - self.position[0]
-        dy = float(y) - self.position[1]
-        dz = float(z) - self.position[2]
+        maxsize = self.femurLength + self.tibiaServo
+        dx = dy = dz = 0
+        coords = [x,y,z]
+        if 'max' in coords or 'min' in coords:
+            limit = 'max' if 'max' in coords else 'min'
+            coords[coords.index(limit)] = 0
+            length = None
+            while not length or length < maxsize:
+                coords[coords.index(limit)] += (1 if limit == 'max' else -1)
+                dx, dy, dz = [coords[i] - self.position[i] for i in range(3)]
+                length = (math.sqrt(dx ** 2 + dy ** 2 + dz ** 2) > self.femurLength + self.tibiaLength)
+
+        else:
+            dx = float(x) - self.position[0]
+            dy = float(y) - self.position[1]
+            dz = float(z) - self.position[2]
 
         while (math.sqrt(dx ** 2 + dy ** 2 + dz ** 2) > self.femurLength + self.tibiaLength):
             dx *= 0.999
@@ -119,7 +132,7 @@ class Robot():
                        Servo(pin=13, rate=RATE, pos0=1500, serial=serial)]
         servos = self.servos
 
-        self.legs = {"front_left": Leg((width / 2, length / 2, heigth), servos[1], servos[0], servos[2], 45, 80), }
+        self.legs = {"front_left": Leg((width / 2, length / 2, heigth), servos[1], servos[0], servos[2], 46, 92), }
         # "front_right": Leg((-width/2,  length/2, heigth), 5, 6, 7, 100, 100),
         # "rear_right" : Leg((-width/2, -length/2, heigth), 8, 9, 10, 100, 100),
         # "rear_left"  : Leg((width/2,  -length/2, heigth), 11, 12, 13, 100, 100)}
@@ -137,10 +150,10 @@ class Robot():
         for servo in self.servos:
             servo.move_to_angle(0)
         time.sleep(5)
-        for i in xrange(-40,60):
+        for i in xrange(130, 190):
             # for servo in self.servos:
             # servo.move_to_angle(0)
-            self.legs['front_left'].move_to(90, 115, -i)
+            self.legs['front_left'].move_to(90, i, 0)
             print i
             time.sleep(0.03)
             self.read_feet()

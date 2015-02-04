@@ -14,8 +14,8 @@ def create():
     global patch
     patch = plt.Polygon([[0,0],[0,3],[3,0]], fc='y')
     ax.add_patch(patch)
-    pylab.ylim([-70,70])
-    pylab.xlim([-70,70])
+    pylab.ylim([-100,100])
+    pylab.xlim([-100,100])
 
 
 def update_lines(lines):

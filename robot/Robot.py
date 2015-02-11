@@ -53,7 +53,7 @@ class Leg():
 
 
     def move_to(self, x, y, z):
-        maxsize = self.femurLength + self.tibiaServo
+        maxsize = self.femurLength + self.tibiaLength
         dx = dy = dz = 0
         coords = [x,y,z]
         if 'max' in coords or 'min' in coords:
@@ -69,7 +69,10 @@ class Leg():
             dx = float(x) - self.position[0]
             dy = float(y) - self.position[1]
             dz = float(z) - self.position[2]
-
+        #
+        # print "pos:", self.position
+        # print "target:", coords
+        # print "dx:" , dx, dy, dz
         while (math.sqrt(dx ** 2 + dy ** 2 + dz ** 2) > self.femurLength + self.tibiaLength):
             dx *= 0.999
             dy *= 0.999
@@ -87,8 +90,10 @@ class Leg():
         AbsshoulderTiltAngle = triangle_angle(self.tibiaLength, self.femurLength, distxyz) + dist_vectorAngle
         AbsshoulderTiltAngle = math.degrees(AbsshoulderTiltAngle)
 
-        AbsshoulderPanAngle = math.degrees(math.atan2(x, y))
-
+        AbsshoulderPanAngle = math.degrees(math.atan2(dy, dx))
+        if self.position[0] < 0:
+            AbsshoulderPanAngle = 180 - AbsshoulderPanAngle
+        print AbsshoulderPanAngle
         tibiaAngle = math.degrees(tibiaAngle)
 
         self.panServo.move_to_angle(AbsshoulderPanAngle)
@@ -103,7 +108,7 @@ class Leg():
 
         pos2 = [pos1[0] + math.cos(math.radians(AbsshoulderTiltAngle - (180 - tibiaAngle))) * self.tibiaLength,
                 pos1[1] + math.sin(math.radians(AbsshoulderTiltAngle - (180 - tibiaAngle))) * self.tibiaLength, ]
-        viewer.update_lines([pos0, pos1, pos2])
+        # viewer.update_lines([pos0, pos1, pos2])
 
 
 class Robot():
@@ -123,7 +128,7 @@ class Robot():
                        Servo(pin=4, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=5, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=6, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=7, rate=RATE, pos0=1500, serial=serial),
+                       Servo(pin=7, rate=-RATE, pos0=1500, serial=serial),
                        Servo(pin=8, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=9, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=10, rate=RATE, pos0=1500, serial=serial),
@@ -132,8 +137,8 @@ class Robot():
                        Servo(pin=13, rate=RATE, pos0=1500, serial=serial)]
         servos = self.servos
 
-        self.legs = {"front_left": Leg((width / 2, length / 2, heigth), servos[1], servos[0], servos[2], 46, 92), }
-        # "front_right": Leg((-width/2,  length/2, heigth), 5, 6, 7, 100, 100),
+        self.legs = {"front_left": Leg((width / 2, length / 2, heigth), servos[1], servos[0], servos[2], 46, 92),
+                     "front_right": Leg((-width/2,  length/2, heigth), servos[3], servos[4], servos[5], 46, 92), }
         # "rear_right" : Leg((-width/2, -length/2, heigth), 8, 9, 10, 100, 100),
         # "rear_left"  : Leg((width/2,  -length/2, heigth), 11, 12, 13, 100, 100)}
         self.feet = [False,False,False,False]
@@ -144,22 +149,49 @@ class Robot():
         self.feet = [not ((data >> bit) & 1) for bit in range(4 - 1, -1, -1)]
         print self.feet
 
+    def read_imu(self):
+        self.serial.queue.put(lambda: self.serial.read_imu())
+        self.orientation = self.serial.imu
+        return self.serial.imu
+
+    def move_leg(self, leg, x, y, z):
+        leg_origin = self.legs[leg].position[0:2]
+        leg_target = [x, y]
+        # viewer.update_leg(leg,[leg_origin,leg_target])
+        self.legs[leg].move_to(x, y, z)
+
     def run(self):
         print self.legs["front_left"].position
         self.serial.start()
         for servo in self.servos:
             servo.move_to_angle(0)
         time.sleep(5)
-        for i in xrange(130, 190):
-            # for servo in self.servos:
-            # servo.move_to_angle(0)
-            self.legs['front_left'].move_to(90, i, 0)
-            print i
-            time.sleep(0.03)
-            self.read_feet()
-            if self.feet[-1]:
-                time.sleep(10)
-                break
+
+        # for i in range(100):
+        #     time.sleep(0.1)
+        #     print self.read_imu()
+        # for i in xrange(1, 100):
+        #     # for servo in self.servos:
+        #     # servo.move_to_angle(0)
+        #     print self.read_imu()
+        #     self.move_leg('front_left', 50 + i, 75, -50)
+        #     self.move_leg('front_right', -(50 + i), 75, -50)
+        #     time.sleep(0.01)
+        #     self.read_feet()
+        #     # if self.feet[-1]:
+        #     #     time.sleep(10)
+        #     #     break
+
+        for i in xrange(1, 1000):
+            self.read_imu()
+            print self.orientation
+            roll = self.orientation[1]
+            sin = math.sin(math.radians(roll))
+            self.move_leg('front_left', 80, 75, -50 + sin*30)
+            self.move_leg('front_right', -(80), 75, -50 - sin*30)
+            time.sleep(0.05)
+
+
 
         print "done"
         self.serial.running = False

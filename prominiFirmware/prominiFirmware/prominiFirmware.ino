@@ -41,7 +41,7 @@ void write_to_servo(int nservo, int value)
 
 void loop()
 {
-    //imu_loop();
+    imu_loop();
     handleSerial();
 }
 

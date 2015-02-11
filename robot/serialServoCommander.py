@@ -13,11 +13,12 @@ class SerialComms(Thread):
     def __init__(self):
         print "starting serial"
         Thread.__init__(self)
-        self.ser = serial.Serial(port='/dev/ttyUSB0',
+        self.ser = serial.Serial(port='/dev/ttyUSB1',
                         baudrate=115200,
                         timeout=0.0001)
         self.input_pins = 15
         self.running = True
+        self.imu = [0,0,0]
         self.queue = Queue()
         print "serial connection stabilished, starting thread"
 
@@ -32,7 +33,7 @@ class SerialComms(Thread):
                 f()
                 # time.sleep(0.01)
             else:
-                time.sleep(0.005)
+                time.sleep(0.001)
             # data= self.ser.readall()
             # if len(data):
             #     print data
@@ -54,12 +55,40 @@ class SerialComms(Thread):
         # print "data:", data , buff
         self.input_pins = data
 
+    def read_imu(self):
+        self.ser.write(">$c")
+        buff = ""
+        start = time.time()
+        while "imu:" not in buff:
+            if time.time() - start > 0.05:
+                return
+            buff += self.ser.read(1)
+
+        buff = buff.split("imu:")[-1]
+        while "!<" not in buff:
+            if time.time() - start > 0.05:
+                return
+            try:
+                data = self.ser.read(1)
+                buff += data
+            except:
+                pass
+        imu = buff.split("!<")[0]
+        self.imu = imu.split(',')
+        try:
+            self.imu = [float(i)/10 for i in self.imu]
+        except:
+            self.imu = [0,0,0]
+
 
     def send_16(self, value):
-        high = chr(value >> 8)
-        low = chr(value % 256)
-        self.ser.write(low)
-        self.ser.write(high)
+        try:
+            high = chr(value >> 8)
+            low = chr(value % 256)
+            self.ser.write(low)
+            self.ser.write(high)
+        except:
+            print "SERIAL ERROR!"
 
     def move_servo_to(self, servo, pos):
         self.ser.write(">$a")
@@ -70,7 +99,3 @@ class SerialComms(Thread):
                 if '!' in self.ser.read(1):
                     # print "ok!"
                     return
-
-
-    def read_imu(self):
-        self.ser.write(">$c")

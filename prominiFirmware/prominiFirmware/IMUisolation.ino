@@ -145,18 +145,18 @@ void imu_loop(){
   //imu();
   computeIMU();
   // Measure loop rate just afer reading the sensors
-  currentTime = micros();
-  //cycleTime = currentTime - previousTime;
-  previousTime = currentTime;
-
-  if (millis()>start+50)
-  {
-    //printStuff();
-    //printPos();
-    //printStuff();
-
-    start= millis() ;
-   }
+//  currentTime = micros();
+//  //cycleTime = currentTime - previousTime;
+//  previousTime = currentTime;
+//
+//  if (millis()>start+50)
+//  {
+//    //printStuff();
+//    //printPos();
+//    //printStuff();
+//
+//    start= millis() ;
+//   }
    //set_servo();
    delay(10);
 }
@@ -316,12 +316,13 @@ void getEstimatedAttitude(){
 
 void respond_with_imu()
 {
-    Serial.println("responding_Serial");
+    Serial.print("imu:");
     Serial.print(angle[0]);
     Serial.print(", ");
     Serial.print(angle[1]);
     Serial.print(", ");
-    Serial.println(angle[2]);
+    Serial.print(angle[2]);
+    Serial.print("!<");
 }
 
 

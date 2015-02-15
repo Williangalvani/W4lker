@@ -5,7 +5,8 @@ __author__ = 'will'
 import math
 from serialServoCommander import SerialComms
 import viewer
-
+from math import radians as d2r
+from tranforms import rotate
 
 def triangle_angle(a, b, c):
     if c == 0:
@@ -21,17 +22,26 @@ def triangle_angle(a, b, c):
 
 RATE = -13.88
 
+def clamp(n, minn, maxn):
+    return max(min(maxn, n), minn)
 
 class Servo():
     def __init__(self, pin, pos0, rate, serial):
         self.pos0 = pos0
         self.rate = rate
         self.pin = pin
+        self.maxAngle = 180
+        self.minAngle = -180
         self.serial = serial
 
+    def set_angle_limits(self, minAngle, maxAngle):
+        self.maxAngle = maxAngle
+        self.minAngle = minAngle
+
     def move_to_angle(self, angle):
-        pos = int(self.pos0 + angle * self.rate)
-        # print angle, pos
+        newAngle = clamp(angle, self.minAngle, self.maxAngle)
+        print newAngle
+        pos = int(self.pos0 + newAngle * self.rate)
         self.serial.queue.put(lambda: self.serial.move_servo_to(self.pin, pos))
 
 
@@ -49,6 +59,8 @@ class Leg():
         self.femurServo = femurServo
         self.tibiaLength = tibiaLength
         self.femurLength = femurLength
+        self.femurServo.set_angle_limits(-90, 65)
+        self.tibiaServo.set_angle_limits(-55, 90)
         viewer.create()
 
 
@@ -74,9 +86,9 @@ class Leg():
         # print "target:", coords
         # print "dx:" , dx, dy, dz
         while (math.sqrt(dx ** 2 + dy ** 2 + dz ** 2) > self.femurLength + self.tibiaLength):
-            dx *= 0.999
-            dy *= 0.999
-            dz *= 0.999
+            dx *= 0.995
+            dy *= 0.995
+            dz *= 0.995
 
         distxyz = math.sqrt(dx ** 2 + dy ** 2 + dz ** 2)  # total distance
         # print "total distance: ", distxyz, [dx, dy, dz]
@@ -90,24 +102,19 @@ class Leg():
         AbsshoulderTiltAngle = triangle_angle(self.tibiaLength, self.femurLength, distxyz) + dist_vectorAngle
         AbsshoulderTiltAngle = math.degrees(AbsshoulderTiltAngle)
 
-        AbsshoulderPanAngle = math.degrees(math.atan2(dy, dx))
-        if self.position[0] < 0:
-            AbsshoulderPanAngle = 180 - AbsshoulderPanAngle
-        print AbsshoulderPanAngle
+        AbsshoulderPanAngle = math.degrees(math.atan(dy/dx))
         tibiaAngle = math.degrees(tibiaAngle)
 
         self.panServo.move_to_angle(AbsshoulderPanAngle)
         self.femurServo.move_to_angle(AbsshoulderTiltAngle)
         self.tibiaServo.move_to_angle(tibiaAngle - 90)
-        # print "angles: ", AbsshoulderPanAngle, AbsshoulderTiltAngle, tibiaAngle, dist_vectorAngle
-        # print "position: ", x, y, z
 
-        pos0 = [0, 0]
-        pos1 = [math.cos(math.radians(AbsshoulderTiltAngle)) * self.femurLength,
-                math.sin(math.radians(AbsshoulderTiltAngle)) * self.femurLength, ]
-
-        pos2 = [pos1[0] + math.cos(math.radians(AbsshoulderTiltAngle - (180 - tibiaAngle))) * self.tibiaLength,
-                pos1[1] + math.sin(math.radians(AbsshoulderTiltAngle - (180 - tibiaAngle))) * self.tibiaLength, ]
+        # pos0 = [0, 0]
+        # pos1 = [math.cos(math.radians(AbsshoulderTiltAngle)) * self.femurLength,
+        #         math.sin(math.radians(AbsshoulderTiltAngle)) * self.femurLength, ]
+        #
+        # pos2 = [pos1[0] + math.cos(math.radians(AbsshoulderTiltAngle - (180 - tibiaAngle))) * self.tibiaLength,
+        #         pos1[1] + math.sin(math.radians(AbsshoulderTiltAngle - (180 - tibiaAngle))) * self.tibiaLength, ]
         # viewer.update_lines([pos0, pos1, pos2])
 
 
@@ -141,7 +148,7 @@ class Robot():
                      "front_right": Leg((-width/2,  length/2, heigth), servos[3], servos[4], servos[5], 46, 92), }
         # "rear_right" : Leg((-width/2, -length/2, heigth), 8, 9, 10, 100, 100),
         # "rear_left"  : Leg((width/2,  -length/2, heigth), 11, 12, 13, 100, 100)}
-        self.feet = [False,False,False,False]
+        self.feet = [False, False, False, False]
 
     def read_feet(self):
         self.serial.queue.put(lambda: self.serial.read_pins())
@@ -160,37 +167,37 @@ class Robot():
         # viewer.update_leg(leg,[leg_origin,leg_target])
         self.legs[leg].move_to(x, y, z)
 
+    def keep_feet_horizontal(self):
+            self.read_imu()
+            print "orientation:", self.orientation
+            roll = self.orientation[1]
+            pitch = self.orientation[0]
+            sin = math.sin(math.radians(pitch))
+            # self.move_leg('front_left', 80, 75, -50 + sin*30)
+            # self.move_leg('front_right', -(80), 75, -50 - sin*30)
+            self.move_leg('front_left', *rotate([60,75,-50],'y',-d2r(roll)))
+            self.move_leg('front_right', *rotate([-60,75,-50],'y',-d2r(roll)))
+
+    def keep_body_horizontal(self):
+        self.read_imu()
+        print "orientation:", self.orientation
+        roll = self.orientation[1]
+        pitch = self.orientation[0]
+        sin = math.sin(math.radians(pitch))
+        # self.move_leg('front_left', 80, 75, -50 + sin*30)
+        # self.move_leg('front_right', -(80), 75, -50 - sin*30)
+        self.move_leg('front_left', *rotate([60,75,-50],'y',d2r(roll)))
+        self.move_leg('front_right', *rotate([-60,75,-50],'y',d2r(roll)))
+
     def run(self):
-        print self.legs["front_left"].position
         self.serial.start()
         for servo in self.servos:
             servo.move_to_angle(0)
         time.sleep(5)
 
-        # for i in range(100):
-        #     time.sleep(0.1)
-        #     print self.read_imu()
-        # for i in xrange(1, 100):
-        #     # for servo in self.servos:
-        #     # servo.move_to_angle(0)
-        #     print self.read_imu()
-        #     self.move_leg('front_left', 50 + i, 75, -50)
-        #     self.move_leg('front_right', -(50 + i), 75, -50)
-        #     time.sleep(0.01)
-        #     self.read_feet()
-        #     # if self.feet[-1]:
-        #     #     time.sleep(10)
-        #     #     break
-
         for i in xrange(1, 1000):
-            self.read_imu()
-            print self.orientation
-            roll = self.orientation[1]
-            sin = math.sin(math.radians(roll))
-            self.move_leg('front_left', 80, 75, -50 + sin*30)
-            self.move_leg('front_right', -(80), 75, -50 - sin*30)
-            time.sleep(0.05)
-
+            self.keep_body_horizontal()
+            time.sleep(0.04)
 
 
         print "done"

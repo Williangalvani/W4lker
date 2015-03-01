@@ -38,21 +38,25 @@ class RobotController():
 
 
     def start(self):
-        pass
+        self.robot.start()
 
 
     def run(self):
 
-        for i in xrange(1, 1000):
+        for i in range(1, 1000):
             self.iterate()
-            time.sleep(0.04)
-
+            time.sleep(0.2)
 
     i = 0
+
+
     def iterate(self):
-        self.i += 1
-        print(self.dx,self.dy,self.dz)
-        self.read_keyboard()
+        # self.i += 1
+        print("iterating i = ", self.i, self.dx, self.dy, self.dz)
+        try:
+            self.read_keyboard()
+        except:
+            pass
         self.robot.move_leg_to_point('front_left',
                                      75+self.dx,
                                      95+self.dy,
@@ -61,14 +65,14 @@ class RobotController():
                                      75+self.dx,
                                      -95+self.dy,
                                      -50+self.dz)
-        self.robot.move_leg_to_point('rear_left',
-                                     -75+self.dx,
-                                     95+self.dy,
-                                     -50+self.dz)
-        self.robot.move_leg_to_point('rear_right',
-                                     -75+self.dx,
-                                     -95+self.dy,
-                                     -50+self.dz)
+        # self.robot.move_leg_to_point('rear_left',
+        #                              -75+self.dx,
+        #                              95+self.dy,
+        #                              -50+self.dz)
+        # self.robot.move_leg_to_point('rear_right',
+        #                              -75+self.dx,
+        #                              -95+self.dy,
+        #                              -50+self.dz)
 
         # self.keep_body_horizontal()
 

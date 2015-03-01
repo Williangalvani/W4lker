@@ -110,18 +110,47 @@ void handleSerial()
 
         case WAITING_SERVO_POS:
             while(!Serial.available());
-            unsigned char low = newData;
+            unsigned char low = newData;  
             unsigned char high = Serial.read();
-            unsigned int newPosition = (high  << 8)+low;
-            write_to_servo(target, newPosition);
+            while(!Serial.available());
+            unsigned char check = Serial.read();
+             unsigned int newPosition = (high  << 8)+low;
+            
+            if(check==(low^high))
+            {
+              Serial.print("check ok ");
+              Serial.print(check);
+              Serial.print("=");
+              Serial.println(low^high);
+            
+              write_to_servo(target, newPosition);
+        
+            }else{
+             Serial.println("check failed!"); 
+                           Serial.print(check);
+              Serial.print("=");
+              Serial.println(low^high);
+                  Serial.print("low:");
+            Serial.println(low);
+            
+            Serial.print("high:");
+            Serial.println(high);
+            Serial.print("final");
+            Serial.println(newPosition);
+            
+            }
+           
+            
 
             current_state = STANDBY;
 //            Serial.print("Writing pos ");
 //            Serial.print(newPosition);
 //            Serial.print(" to servo ");
 //            Serial.println(target);
-            Serial.print(COMMAND_WRITE);
-            Serial.print('!');
+            //Serial.print(COMMAND_WRITE);
+            //Serial.print('!');
+
+            
         break;
 
 

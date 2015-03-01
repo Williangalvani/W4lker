@@ -1,7 +1,7 @@
 import serial
 from threading import Thread
 import time
-from Queue import Queue
+from queue import Queue
 import time
 
 
@@ -11,7 +11,7 @@ class SerialComms(Thread):
     ser = None
 
     def __init__(self):
-        print "starting serial"
+        print ("starting serial")
         Thread.__init__(self)
         self.ser = serial.Serial(port='/dev/ttyUSB0',
                         baudrate=115200,
@@ -20,11 +20,11 @@ class SerialComms(Thread):
         self.running = True
         self.imu = [0,0,0]
         self.queue = Queue()
-        print "serial connection stabilished, starting thread"
+        print ("serial connection stabilished, starting thread")
 
 
     def run(self):
-        print "thread running"
+        print ("thread running")
         while self.running:
 
             if not self.queue.empty():
@@ -40,7 +40,7 @@ class SerialComms(Thread):
         self.ser.close()
 
     def read_pins(self):
-        self.ser.write(">$b")
+        self.serwrite(">$b")
         buff = ""
         start = time.time()
         while "pins:" not in buff:
@@ -56,7 +56,7 @@ class SerialComms(Thread):
         self.input_pins = data
 
     def read_imu(self):
-        self.ser.write(">$c")
+        self.serwrite(">$c")
         buff = ""
         start = time.time()
         while "imu:" not in buff:
@@ -83,19 +83,42 @@ class SerialComms(Thread):
 
     def send_16(self, value):
         try:
+            # print("----------------------------------------")
+            # print("sending value:", value)
             high = chr(value >> 8)
             low = chr(value % 256)
-            self.ser.write(low)
-            self.ser.write(high)
-        except:
-            print "SERIAL ERROR!"
+            if ord(low) > 128:
+                print ("bugou")
+            # print("encoded:", ord(high) , ord(low),  (ord(high)<<8) + ord(low))
+            # print("high:", ord(high))
+            # print("low:", ord(low))
+            # self.serwrite(low)
+            # print(bin(ord(high)), bin(ord(low)))
+            # print (len(bin(ord(low)))-2)
+            self.serwrite(low)
+            self.serwrite(high)
+            check = ord(low)^ord(high)
+            # print("chk:",check)
+            self.serwrite(chr(check))
+            # print("-----------")
+
+
+        except Exception as e:
+            print ("SERIAL ERROR!" , e)
+
+    def serwrite(self, s):
+       self.ser.write(bytes(s, 'UTF-8'))
+
 
     def move_servo_to(self, servo, pos):
-        self.ser.write(">$a")
-        self.ser.write(chr(servo))
+        self.serwrite(">$a")
+        self.serwrite(chr(servo))
         self.send_16(pos)
-        for i in range(10):
-            if 'a' in self.ser.read(1):
-                if '!' in self.ser.read(1):
-                    # print "ok!"
-                    return
+        time.sleep(0.01)
+        # print(self.ser.readall().decode())
+        # for i in range(10):
+        #     # print (self.ser.read(1))
+        #     if 'a' in str(self.ser.read(1)):
+        #         if '!' in str(self.ser.read(1)):
+        #             print("ok!")
+        #             return

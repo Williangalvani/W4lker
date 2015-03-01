@@ -51,8 +51,12 @@ class Leg():
         return d2r(coxaAngle), d2r(femurAngle), d2r(tibiaAngle - 90)
 
     def move_to_pos(self, x, y, z):
-        angles = self.ik_to(x, y, z)
-        self.move_to_angle(*angles)
+        try:
+            angles = self.ik_to(x, y, z)
+            print("ik result:", angles)
+            self.move_to_angle(*angles)
+        except Exception as e:
+            print (e)
 
     def check_limits(self, shoulderAngle, femurAngle, tibiaAngle):
         shoulderAngle = degrees(shoulderAngle)

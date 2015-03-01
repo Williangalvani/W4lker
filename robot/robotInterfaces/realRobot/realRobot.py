@@ -4,7 +4,8 @@ import math
 from robot import robotData
 from robot.robotInterfaces.legInterfaces.realLeg import RealLeg
 from robot.robotInterfaces.realRobot import viewer
-from serialServoCommander import SerialComms
+from robot.robotInterfaces.realRobot.serialServoCommander import SerialComms
+from robot.robotInterfaces.genericRobot import Robot
 
 RATE = robotData.genericServoRate
 
@@ -26,13 +27,15 @@ class Servo():
         self.minAngle = minAngle
 
     def move_to_angle(self, angle):
+        # angle = math.degrees(angle)
+        # print("servo received value", angle)
         newAngle = clamp(angle, self.minAngle, self.maxAngle)
-        # print newAngle
+
         pos = int(self.pos0 + newAngle * self.rate)
         self.serial.queue.put(lambda: self.serial.move_servo_to(self.pin, pos))
 
 
-class RealRobot():
+class RealRobot(Robot):
     width = robotData.width
     length = robotData.length
     heigth = robotData.heigth
@@ -42,6 +45,7 @@ class RealRobot():
         length = self.length
         heigth = self.heigth
         self.serial = SerialComms()
+        print("created new RealRobot attached to:", self.serial)
         serial = self.serial
         self.servos = [Servo(pin=2, rate=-RATE, pos0=1500, serial=serial),
                        Servo(pin=3, rate=RATE, pos0=1500, serial=serial),
@@ -57,8 +61,8 @@ class RealRobot():
                        Servo(pin=13, rate=RATE, pos0=1500, serial=serial)]
         servos = self.servos
 
-        self.legs = {"front_left": RealLeg((width / 2, length / 2, heigth), servos[1], servos[0], servos[2], 46, 92),
-                     "front_right": RealLeg((-width/2,  length/2, heigth), servos[3], servos[4], servos[5], 46, 92), }
+        self.legs = {"front_left": RealLeg("front_left",(width / 2, length / 2, heigth), servos[1], servos[0], servos[2]),
+                     "front_right": RealLeg("front_left",(-width/2,  length/2, heigth), servos[3], servos[4], servos[5])}
         # "rear_right" : Leg((-width/2, -length/2, heigth), 8, 9, 10, 100, 100),
         # "rear_left"  : Leg((width/2,  -length/2, heigth), 11, 12, 13, 100, 100)}
         self.feet = [False, False, False, False]
@@ -76,9 +80,12 @@ class RealRobot():
     def move_leg_to_point(self, leg, x, y, z):
         # viewer.update_leg(leg,[leg_origin,leg_target])
         self.legs[leg].move_to_pos(x, y, z)
+        time.sleep(0.001)
 
     def start(self):
         self.serial.start()
-        for servo in self.servos:
-            servo.move_to_angle(0)
-        time.sleep(5)
+        for i in range(1000):
+            # for servo in self.servos:
+            self.servos[0].move_to_angle(-50+i)
+            time.sleep(0.1)
+        time.sleep(1)

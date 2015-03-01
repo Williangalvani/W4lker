@@ -11,6 +11,7 @@ controller1.start()
 controller2 = controller.RobotController(robot2)
 controller2.start()
 
+print("script ready!")
 
 def run():
     global controller1, controller2

@@ -15,7 +15,7 @@ class SerialComms(Thread):
     def __init__(self):
         print ("starting serial")
         Thread.__init__(self)
-        self.ser = serial.Serial(port='/dev/ttyUSB0',
+        self.ser = serial.Serial(port='/dev/ttyUSB1',
                         baudrate=115200,
                         timeout=0.0001)
         self.input_pins = 15
@@ -35,7 +35,7 @@ class SerialComms(Thread):
                 f()
                 # time.sleep(0.01)
             else:
-                time.sleep(0.001)
+                time.sleep(0.0006)
             # data= self.ser.readall()
             # if len(data):
             #     print data
@@ -109,8 +109,9 @@ class SerialComms(Thread):
         self.serwrite(">$a")
         self.serwrite(chr(servo))
         self.send_16(pos)
-        # time.sleep(0.01)
-        for i in range(10):
+        #time.sleep(0.01)
+       # print(self.ser.readall().decode())
+        for i in range(3):
             # print (self.ser.read(1))
             if 'a' in str(self.ser.read(1)):
                 if '!' in str(self.ser.read(1)):

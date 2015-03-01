@@ -53,7 +53,7 @@ class Leg():
     def move_to_pos(self, x, y, z):
         try:
             angles = self.ik_to(x, y, z)
-            print("ik result:", angles)
+            # print("ik result:", angles)
             self.move_to_angle(*angles)
         except Exception as e:
             print (e)
@@ -79,9 +79,9 @@ class Leg():
         if tibiaAngle > tibiaServoLimits[1]:
             raise Exception("tibia out of bounds")
         if shoulderAngle < shoulderServoLimits[0]:
-            raise Exception("shoulder out of bounds, attempted {0}".format(shoulderAngle))
+            raise Exception(self.name,":shoulder out of bounds, attempted {0}".format(shoulderAngle))
         if shoulderAngle > shoulderServoLimits[1]:
-            raise Exception("shoulder out of bounds, attempted {0}".format(shoulderAngle))
+            raise Exception(self.name,":shoulder out of bounds, attempted {0}".format(shoulderAngle))
 
     @abc.abstractmethod
     def move_to_angle(self, shoulderAngle, femurAngle, tibiaAngle):

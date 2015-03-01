@@ -17,7 +17,9 @@ class RealLeg(Leg):
 
 
     def move_to_angle(self, shoulderAngle, femurAngle, tibiaAngle):
-        print("trying to move to",shoulderAngle,femurAngle,tibiaAngle)
+        self.check_limits(shoulderAngle,femurAngle,tibiaAngle   )
+        print(self.name, "real shoulder:" , shoulderAngle)
+
         self.panServo.move_to_angle(shoulderAngle)
         self.femurServo.move_to_angle(femurAngle)
-        self.tibiaServo.move_to_angle(tibiaAngle - pi/2)
+        self.tibiaServo.move_to_angle(tibiaAngle )

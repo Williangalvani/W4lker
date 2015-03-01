@@ -3,208 +3,112 @@ import time
 __author__ = 'will'
 
 import math
-from serialServoCommander import SerialComms
-import viewer
 from math import radians as d2r
-from tranforms import rotate
+from robot.tranforms import rotate
 
-def triangle_angle(a, b, c):
-    if c == 0:
-        return 0
-    a = abs(a)
-    b = abs(b)
-    c = abs(c)
+class RobotController():
+    def __init__(self, robot):
+        self.robot = robot
+        self.dx = 0
+        self.dy = 0
+        self.dz = 0
 
-    cosA = (a ** 2 - b ** 2 - c ** 2) / (-2 * b * c)
-    # print "triangle:",a,b,c , " cos: ", cos
-    return math.acos(cosA)
-
-
-RATE = -13.88
-
-def clamp(n, minn, maxn):
-    return max(min(maxn, n), minn)
-
-class Servo():
-    def __init__(self, pin, pos0, rate, serial):
-        self.pos0 = pos0
-        self.rate = rate
-        self.pin = pin
-        self.maxAngle = 180
-        self.minAngle = -180
-        self.serial = serial
-
-    def set_angle_limits(self, minAngle, maxAngle):
-        self.maxAngle = maxAngle
-        self.minAngle = minAngle
-
-    def move_to_angle(self, angle):
-        newAngle = clamp(angle, self.minAngle, self.maxAngle)
-        print newAngle
-        pos = int(self.pos0 + newAngle * self.rate)
-        self.serial.queue.put(lambda: self.serial.move_servo_to(self.pin, pos))
-
-
-class Leg():
-    panServo = None
-    tibiaServo = None
-    femurServo = None
-    position = None
-    orientation = None
-
-    def __init__(self, position, panServo, femurServo, tibiaServo, femurLength, tibiaLength,):
-        self.position = position
-        self.panServo = panServo
-        self.tibiaServo = tibiaServo
-        self.femurServo = femurServo
-        self.tibiaLength = tibiaLength
-        self.femurLength = femurLength
-        self.femurServo.set_angle_limits(-90, 65)
-        self.tibiaServo.set_angle_limits(-55, 90)
-        viewer.create()
-
-
-    def move_to(self, x, y, z):
-        maxsize = self.femurLength + self.tibiaLength
-        dx = dy = dz = 0
-        coords = [x,y,z]
-        if 'max' in coords or 'min' in coords:
-            limit = 'max' if 'max' in coords else 'min'
-            coords[coords.index(limit)] = 0
-            length = None
-            while not length or length < maxsize:
-                coords[coords.index(limit)] += (1 if limit == 'max' else -1)
-                dx, dy, dz = [coords[i] - self.position[i] for i in range(3)]
-                length = (math.sqrt(dx ** 2 + dy ** 2 + dz ** 2) > self.femurLength + self.tibiaLength)
-
-        else:
-            dx = float(x) - self.position[0]
-            dy = float(y) - self.position[1]
-            dz = float(z) - self.position[2]
-        #
-        # print "pos:", self.position
-        # print "target:", coords
-        # print "dx:" , dx, dy, dz
-        while (math.sqrt(dx ** 2 + dy ** 2 + dz ** 2) > self.femurLength + self.tibiaLength):
-            dx *= 0.995
-            dy *= 0.995
-            dz *= 0.995
-
-        distxyz = math.sqrt(dx ** 2 + dy ** 2 + dz ** 2)  # total distance
-        # print "total distance: ", distxyz, [dx, dy, dz]
-
-        tibiaAngle = triangle_angle(distxyz, self.tibiaLength, self.femurLength)
-
-        xydist = math.sqrt(dx ** 2 + dy ** 2)
-        dist_vectorAngle = math.atan2(dz, xydist)
-
-        # relevant, shoulder tilt angle
-        AbsshoulderTiltAngle = triangle_angle(self.tibiaLength, self.femurLength, distxyz) + dist_vectorAngle
-        AbsshoulderTiltAngle = math.degrees(AbsshoulderTiltAngle)
-
-        AbsshoulderPanAngle = math.degrees(math.atan(dy/dx))
-        tibiaAngle = math.degrees(tibiaAngle)
-
-        self.panServo.move_to_angle(AbsshoulderPanAngle)
-        self.femurServo.move_to_angle(AbsshoulderTiltAngle)
-        self.tibiaServo.move_to_angle(tibiaAngle - 90)
-
-        # pos0 = [0, 0]
-        # pos1 = [math.cos(math.radians(AbsshoulderTiltAngle)) * self.femurLength,
-        #         math.sin(math.radians(AbsshoulderTiltAngle)) * self.femurLength, ]
-        #
-        # pos2 = [pos1[0] + math.cos(math.radians(AbsshoulderTiltAngle - (180 - tibiaAngle))) * self.tibiaLength,
-        #         pos1[1] + math.sin(math.radians(AbsshoulderTiltAngle - (180 - tibiaAngle))) * self.tibiaLength, ]
-        # viewer.update_lines([pos0, pos1, pos2])
-
-
-class Robot():
-    width = 100
-    length = 150
-    heigth = 30
-
-
-    def __init__(self):
-        width = 100
-        length = 150
-        heigth = 30
-        self.serial = SerialComms()
-        serial = self.serial
-        self.servos = [Servo(pin=2, rate=-RATE, pos0=1500, serial=serial),
-                       Servo(pin=3, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=4, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=5, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=6, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=7, rate=-RATE, pos0=1500, serial=serial),
-                       Servo(pin=8, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=9, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=10, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=11, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=12, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=13, rate=RATE, pos0=1500, serial=serial)]
-        servos = self.servos
-
-        self.legs = {"front_left": Leg((width / 2, length / 2, heigth), servos[1], servos[0], servos[2], 46, 92),
-                     "front_right": Leg((-width/2,  length/2, heigth), servos[3], servos[4], servos[5], 46, 92), }
-        # "rear_right" : Leg((-width/2, -length/2, heigth), 8, 9, 10, 100, 100),
-        # "rear_left"  : Leg((width/2,  -length/2, heigth), 11, 12, 13, 100, 100)}
-        self.feet = [False, False, False, False]
-
-    def read_feet(self):
-        self.serial.queue.put(lambda: self.serial.read_pins())
-        data = self.serial.input_pins
-        self.feet = [not ((data >> bit) & 1) for bit in range(4 - 1, -1, -1)]
-        print self.feet
-
-    def read_imu(self):
-        self.serial.queue.put(lambda: self.serial.read_imu())
-        self.orientation = self.serial.imu
-        return self.serial.imu
-
-    def move_leg(self, leg, x, y, z):
-        leg_origin = self.legs[leg].position[0:2]
-        leg_target = [x, y]
-        # viewer.update_leg(leg,[leg_origin,leg_target])
-        self.legs[leg].move_to(x, y, z)
 
     def keep_feet_horizontal(self):
-            self.read_imu()
-            print "orientation:", self.orientation
+            self.robot.read_imu()
+            # print "orientation:", self.orientation
             roll = self.orientation[1]
             pitch = self.orientation[0]
             sin = math.sin(math.radians(pitch))
-            # self.move_leg('front_left', 80, 75, -50 + sin*30)
-            # self.move_leg('front_right', -(80), 75, -50 - sin*30)
-            self.move_leg('front_left', *rotate([60,75,-50],'y',-d2r(roll)))
-            self.move_leg('front_right', *rotate([-60,75,-50],'y',-d2r(roll)))
+            # self.move_leg_to_point('front_left', 80, 75, -50 + sin*30)
+            # self.move_leg_to_point('front_right', -(80), 75, -50 - sin*30)
+            self.robot.move_leg_to_point('front_left', *rotate([60,75,-50],'y',-d2r(roll)))
+            self.robot.move_leg_to_point('front_right', *rotate([-60,75,-50],'y',-d2r(roll)))
 
     def keep_body_horizontal(self):
-        self.read_imu()
-        print "orientation:", self.orientation
-        roll = self.orientation[1]
-        pitch = self.orientation[0]
+        self.robot.read_imu()
+        # print "orientation:", self.orientation
+        roll = self.robot.orientation[1]
+        pitch = self.robot.orientation[0]
         sin = math.sin(math.radians(pitch))
-        # self.move_leg('front_left', 80, 75, -50 + sin*30)
-        # self.move_leg('front_right', -(80), 75, -50 - sin*30)
-        self.move_leg('front_left', *rotate([60,75,-50],'y',d2r(roll)))
-        self.move_leg('front_right', *rotate([-60,75,-50],'y',d2r(roll)))
+        # self.move_leg_to_point('front_left', 80, 75, -50 + sin*30)
+        # self.move_leg_to_point('front_right', -(80), 75, -50 - sin*30)
+        self.robot.move_leg_to_point('front_left', *rotate([0,75,-50],'y',d2r(roll)))
+        self.robot.move_leg_to_point('front_right', *rotate([0,75,-50],'y',d2r(roll)))
+
+
+    def start(self):
+        pass
+
 
     def run(self):
-        self.serial.start()
-        for servo in self.servos:
-            servo.move_to_angle(0)
-        time.sleep(5)
 
         for i in xrange(1, 1000):
-            self.keep_body_horizontal()
+            self.iterate()
             time.sleep(0.04)
 
 
-        print "done"
-        self.serial.running = False
-        self.serial.join()
-        time.sleep(5)
+    i = 0
+    def iterate(self):
+        self.i += 1
+        print(self.dx,self.dy,self.dz)
+        self.read_keyboard()
+        self.robot.move_leg_to_point('front_left',
+                                     50+self.dx,
+                                     75+self.dy,
+                                     -50+self.dz)
+        self.robot.move_leg_to_point('front_right',
+                                     -50+self.dx,
+                                     75+self.dy,
+                                     -50+self.dz)
+
+        # self.keep_body_horizontal()
 
 
-r = Robot()
-r.run()
+    def read_keyboard(self):
+        import bge
+        co = bge.logic.getCurrentController()
+        # 'Keyboard' is a keyboard sensor
+        sensor = co.sensors["Keyboard"]
+        dx = dy = dz = 0
+        for key,status in sensor.events:
+                # key[0] == bge.events.keycode, key[1] = status
+                # print(key,status)
+                if status == bge.logic.KX_INPUT_ACTIVE:
+                        if key == 119:
+                            dx = 1
+                        elif key == 115:
+                            dx = -1
+                        else:
+                            dx = 0
+                        if key == 97:
+                            dy = 1
+                        elif key == 100:
+                            dy = -1
+                        else:
+                            dy = 0
+                        if key == 114:
+                            dz = 1
+                        elif key == 102:
+                            dz = -1
+                        else:
+                            dz = 0
+        self.dx+=dx
+        self.dy+=dy
+        self.dz+=dz
+
+
+
+def run_with_real_robot():
+    r = RealRobot()
+    controller = RobotController(r)
+    controller.start()
+    controller.run()
+
+
+if __name__ == "__main__":
+    from robot.robotInterfaces.realRobot.realRobot import RealRobot
+    run_with_real_robot()
+
+
+

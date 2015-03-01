@@ -49,5 +49,5 @@ def rotate(matrix, axis, theta, center=None):
 
 test = [[1], [0], [0]]
 
-print rotate(test, 'y', math.pi, [0, 1, 0])
+print (rotate(test, 'y', math.pi, [0, 1, 0]))
 

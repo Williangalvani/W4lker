@@ -110,10 +110,9 @@ class SerialComms(Thread):
         self.serwrite(chr(servo))
         self.send_16(pos)
         # time.sleep(0.01)
-        print(self.ser.readall().decode())
-        # for i in range(10):
-        #     # print (self.ser.read(1))
-        #     if 'a' in str(self.ser.read(1)):
-        #         if '!' in str(self.ser.read(1)):
-        #             print("ok!")
-        #             return
+        for i in range(10):
+            # print (self.ser.read(1))
+            if 'a' in str(self.ser.read(1)):
+                if '!' in str(self.ser.read(1)):
+                    # print("ok!")
+                    return

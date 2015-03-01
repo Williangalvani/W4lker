@@ -128,11 +128,11 @@ void handleSerial()
             if(check==(low^high))
             {
                 
-              Serial.print("check ok ");
+/*              Serial.print("check ok ");
               Serial.print(check);
               Serial.print("=");
               Serial.println(low^high);
-
+  
                   Serial.print("low:");
             Serial.println(low);
             
@@ -140,7 +140,8 @@ void handleSerial()
             Serial.println(high);
             Serial.print("final");
             Serial.println(newPosition);
-            
+          
+  */
             Serial.print(COMMAND_WRITE);
             Serial.print('!');
             write_to_servo(target, newPosition);

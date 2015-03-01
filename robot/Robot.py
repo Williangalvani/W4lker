@@ -54,12 +54,20 @@ class RobotController():
         print(self.dx,self.dy,self.dz)
         self.read_keyboard()
         self.robot.move_leg_to_point('front_left',
-                                     50+self.dx,
+                                     75+self.dx,
                                      75+self.dy,
                                      -50+self.dz)
         self.robot.move_leg_to_point('front_right',
-                                     -50+self.dx,
+                                     75+self.dx,
+                                     -75+self.dy,
+                                     -50+self.dz)
+        self.robot.move_leg_to_point('rear_left',
+                                     -75+self.dx,
                                      75+self.dy,
+                                     -50+self.dz)
+        self.robot.move_leg_to_point('rear_right',
+                                     -75+self.dx,
+                                     -75+self.dy,
                                      -50+self.dz)
 
         # self.keep_body_horizontal()
@@ -93,6 +101,7 @@ class RobotController():
                             dz = -1
                         else:
                             dz = 0
+
         self.dx+=dx
         self.dy+=dy
         self.dz+=dz

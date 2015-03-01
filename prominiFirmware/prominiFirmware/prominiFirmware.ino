@@ -114,22 +114,25 @@ void handleSerial()
             unsigned char high = Serial.read();
             while(!Serial.available());
             unsigned char check = Serial.read();
-             unsigned int newPosition = (high  << 8)+low;
+            union u_tag {
+                  byte b[2];
+                  unsigned int ulval;
+                } u; 
             
+                
+            unsigned int newPosition = low + high<<8;
+            u.b[0] = low;
+            u.b[1] = high;
+            newPosition = u.ulval;
+           
             if(check==(low^high))
             {
+                
               Serial.print("check ok ");
               Serial.print(check);
               Serial.print("=");
               Serial.println(low^high);
-            
-              write_to_servo(target, newPosition);
-        
-            }else{
-             Serial.println("check failed!"); 
-                           Serial.print(check);
-              Serial.print("=");
-              Serial.println(low^high);
+
                   Serial.print("low:");
             Serial.println(low);
             
@@ -137,6 +140,17 @@ void handleSerial()
             Serial.println(high);
             Serial.print("final");
             Serial.println(newPosition);
+            
+            Serial.print(COMMAND_WRITE);
+            Serial.print('!');
+            write_to_servo(target, newPosition);
+        
+            }else{
+             Serial.println("check failed!"); 
+                           Serial.print(check);
+              Serial.print("=");
+              Serial.println(low^high);
+
             
             }
            

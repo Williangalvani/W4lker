@@ -1,3 +1,5 @@
+from binascii import hexlify
+import struct
 import serial
 from threading import Thread
 import time
@@ -82,25 +84,18 @@ class SerialComms(Thread):
 
 
     def send_16(self, value):
+        def packIntegerAsULong(value):
+            """Packs a python 4 byte unsigned integer to an arduino unsigned long"""
+            return struct.pack('H', value)
         try:
-            # print("----------------------------------------")
-            # print("sending value:", value)
-            high = chr(value >> 8)
-            low = chr(value % 256)
-            if ord(low) > 128:
-                print ("bugou")
-            # print("encoded:", ord(high) , ord(low),  (ord(high)<<8) + ord(low))
-            # print("high:", ord(high))
-            # print("low:", ord(low))
-            # self.serwrite(low)
-            # print(bin(ord(high)), bin(ord(low)))
-            # print (len(bin(ord(low)))-2)
-            self.serwrite(low)
-            self.serwrite(high)
-            check = ord(low)^ord(high)
-            # print("chk:",check)
-            self.serwrite(chr(check))
-            # print("-----------")
+            data = packIntegerAsULong(value)
+            msg = bytearray()
+            msg.extend(data)
+            lrc = 0
+            for b in msg:
+                lrc ^= b
+            msg.append(lrc)
+            self.ser.write(msg)
 
 
         except Exception as e:
@@ -114,8 +109,8 @@ class SerialComms(Thread):
         self.serwrite(">$a")
         self.serwrite(chr(servo))
         self.send_16(pos)
-        time.sleep(0.01)
-        # print(self.ser.readall().decode())
+        # time.sleep(0.01)
+        print(self.ser.readall().decode())
         # for i in range(10):
         #     # print (self.ser.read(1))
         #     if 'a' in str(self.ser.read(1)):

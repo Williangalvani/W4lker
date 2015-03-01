@@ -27,7 +27,7 @@ class Servo():
         self.minAngle = minAngle
 
     def move_to_angle(self, angle):
-        # angle = math.degrees(angle)
+        angle = math.degrees(angle)
         # print("servo received value", angle)
         newAngle = clamp(angle, self.minAngle, self.maxAngle)
 
@@ -84,8 +84,8 @@ class RealRobot(Robot):
 
     def start(self):
         self.serial.start()
-        for i in range(1000):
-            # for servo in self.servos:
-            self.servos[0].move_to_angle(-50+i)
-            time.sleep(0.1)
+        # for i in range(1000):
+        for servo in self.servos:
+            self.servos[0].move_to_angle(0)
+            # time.sleep(0.1)
         time.sleep(1)

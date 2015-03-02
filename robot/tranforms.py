@@ -2,6 +2,7 @@ __author__ = 'will'
 import numpy as np
 import math
 
+
 def get_axis(axis):
     if axis == "x":
         return [1, 0, 0]
@@ -11,6 +12,9 @@ def get_axis(axis):
         return [0, 0, 1]
     else:
         return axis
+
+def distance(a, b):
+    return math.sqrt((b[0]-a[0])**2 +(b[1]-a[1])**2 +(b[2]-a[2])**2)
 
 def rotateAroundCenter(matrix, axis, theta):
     axis = get_axis(axis)

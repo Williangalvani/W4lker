@@ -16,6 +16,8 @@ class Leg():
     position = None
     orientation = None
     direction = 1
+    footPosition = [0,0,0]
+    angles = [0,0,0]
 
     def __init__(self, name, position):
         self.name = name
@@ -24,7 +26,6 @@ class Leg():
         self.femurLength = robotData.femurLength
         if "right" in self.name:
             self.direction = -1
-
 
     def ik_to(self, x0, y0, z0):
 
@@ -55,6 +56,9 @@ class Leg():
             angles = self.ik_to(x, y, z)
             # print("ik result:", angles)
             self.move_to_angle(*angles)
+
+            self.footPosition = [x, y, z]
+            self.angles = angles
         except Exception as e:
             print (e)
 

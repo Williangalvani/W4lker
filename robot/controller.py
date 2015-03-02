@@ -1,10 +1,13 @@
 import time
+from robot.gaits import TrotGait
 
 __author__ = 'will'
 
 import math
 from math import radians as d2r
 from robot.tranforms import rotate
+from robot import robotData
+import numpy
 
 class RobotController():
     def __init__(self, robot):
@@ -12,6 +15,13 @@ class RobotController():
         self.dx = 0
         self.dy = 0
         self.dz = 0
+        self.drot = [0, 0, 0]
+
+
+        self.startTime = time.time()
+        self.trotgait = TrotGait(self.robot)
+        self.trotgait.reset()
+
 
 
     def keep_feet_horizontal(self):
@@ -50,6 +60,24 @@ class RobotController():
     i = 0
 
 
+    def trot(self):
+        self.trotgait.iterate([self.dx,self.dy,self.dz],self.drot)
+
+    def get_ground_rotated_legs_resting_position(self):
+        pass
+
+    def move_legs_to_offset(self, offset):
+        self.move_legs_to_offsets(offset, offset, offset, offset)
+
+    def move_legs_to_offsets(self, front_left_offset, front_right_offset, rear_left_offset, rear_right_offset):
+
+        fl_rest, fr_rest, rr_rest, rl_rest = robotData.legs_resting_positions
+
+        self.robot.move_leg_to_point('front_left', *(fl_rest + front_left_offset))
+        self.robot.move_leg_to_point('front_right',*(fr_rest + front_right_offset))
+        self.robot.move_leg_to_point('rear_left',  *(rl_rest + rear_left_offset))
+        self.robot.move_leg_to_point('rear_right', *(rr_rest + rear_right_offset))
+
     def iterate(self):
         # self.i += 1
         # print("iterating i = ", self.i, self.dx, self.dy, self.dz)
@@ -57,24 +85,8 @@ class RobotController():
             self.read_keyboard()
         except:
             pass
-        self.robot.move_leg_to_point('front_left',
-                                     75+self.dx,
-                                     95+self.dy,
-                                     -50+self.dz)
-        self.robot.move_leg_to_point('front_right',
-                                     75+self.dx,
-                                     -95+self.dy,
-                                     -50+self.dz)
-        # self.robot.move_leg_to_point('rear_left',
-        #                              -75+self.dx,
-        #                              95+self.dy,
-        #                              -50+self.dz)
-        # self.robot.move_leg_to_point('rear_right',
-        #                              -75+self.dx,
-        #                              -95+self.dy,
-        #                              -50+self.dz)
-
-        # self.keep_body_horizontal()
+        self.move_legs_to_offset([self.dx,self.dy,self.dz])
+        self.trot()
 
 
     def read_keyboard(self):
@@ -105,6 +117,11 @@ class RobotController():
                             dz = -1
                         else:
                             dz = 0
+                        if key == 113:
+                            self.drot[2] += 0.001
+                        elif key == 101:
+                            self.drot[2] -= 0.001
+
                         if key == 49:
                             self.robot.disconnect()
         self.dx+=dx

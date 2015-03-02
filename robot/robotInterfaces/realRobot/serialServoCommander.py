@@ -1,8 +1,6 @@
-from binascii import hexlify
 import struct
 import serial
 from threading import Thread
-import time
 from queue import Queue
 import time
 

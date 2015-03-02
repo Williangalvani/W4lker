@@ -27,7 +27,7 @@ class VirtualLeg(Leg):
         :return:
         """
         self.check_limits(shoulderAngle,femurAngle,tibiaAngle)
-        print(self.name, "virtual shoulder:" , shoulderAngle)
+        # print(self.name, "virtual shoulder:" , shoulderAngle)
         leg = self.armature
         shoulder = leg.channels[0]
         shoulder.rotation_mode = bge.logic.ROT_MODE_XYZ

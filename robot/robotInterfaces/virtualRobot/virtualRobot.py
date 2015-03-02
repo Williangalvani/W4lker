@@ -55,4 +55,5 @@ class VirtualRobot(Robot):
     def start(self):
         pass
 
-
+    def disconnect(self):
+        pass

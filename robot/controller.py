@@ -52,7 +52,7 @@ class RobotController():
 
     def iterate(self):
         # self.i += 1
-        print("iterating i = ", self.i, self.dx, self.dy, self.dz)
+        # print("iterating i = ", self.i, self.dx, self.dy, self.dz)
         try:
             self.read_keyboard()
         except:
@@ -85,7 +85,7 @@ class RobotController():
         dx = dy = dz = 0
         for key,status in sensor.events:
                 # key[0] == bge.events.keycode, key[1] = status
-                # print(key,status)
+                print(key,status)
                 if status == bge.logic.KX_INPUT_ACTIVE:
                         if key == 119:
                             dx = 1
@@ -105,7 +105,8 @@ class RobotController():
                             dz = -1
                         else:
                             dz = 0
-
+                        if key == 49:
+                            self.robot.disconnect()
         self.dx+=dx
         self.dy+=dy
         self.dz+=dz

@@ -3,7 +3,6 @@ import math
 
 from robot import robotData
 from robot.robotInterfaces.legInterfaces.realLeg import RealLeg
-from robot.robotInterfaces.realRobot import viewer
 from robot.robotInterfaces.realRobot.serialServoCommander import SerialComms
 from robot.robotInterfaces.genericRobot import Robot
 
@@ -91,3 +90,6 @@ class RealRobot(Robot):
             servo.move_to_angle(0)
             # time.sleep(0.1)
         time.sleep(3)
+
+    def disconnect(self):
+        self.serial.running=False

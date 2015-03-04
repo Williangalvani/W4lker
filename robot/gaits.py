@@ -21,7 +21,7 @@ class Gait():
 
 class TrotGait(Gait):
 
-    z_profile = [0, 0, 0, 0, 0, 5, 15, 15, 15, 3] #leg height x time
+    z_profile = [0, 0, 0, 0, 0, 5, 20, 25, 20, 3] #leg height x time
 
     z_points = len(z_profile)
     startTime = 0

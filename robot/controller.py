@@ -78,14 +78,19 @@ class RobotController():
         self.robot.move_leg_to_point('rear_left',  *(rl_rest + rear_left_offset))
         self.robot.move_leg_to_point('rear_right', *(rr_rest + rear_right_offset))
 
+
+    def move_legs_to_angles(self,a,b,c):
+        self.robot.move_legs_to_angles( [a/100,b/100,c/100])
+
     def iterate(self):
         # self.i += 1
         # print("iterating i = ", self.i, self.dx, self.dy, self.dz)
         try:
             self.read_keyboard()
-        except:
-            pass
-        self.move_legs_to_offset([self.dx,self.dy,self.dz])
+        except Exception as e:
+            print("could not read keyboard:", e)
+        # self.move_legs_to_offset([self.dx,self.dy,self.dz])
+        #self.move_legs_to_angles(self.dx,self.dy,self.dz)
         self.trot()
 
 
@@ -93,7 +98,8 @@ class RobotController():
         import bge
         co = bge.logic.getCurrentController()
         # 'Keyboard' is a keyboard sensor
-        sensor = co.sensors["Keyboard"]
+        sensor = co.sensors["Keyboard.001"]
+        # print(sensor)
         dx = dy = dz = 0
         for key,status in sensor.events:
                 # key[0] == bge.events.keycode, key[1] = status

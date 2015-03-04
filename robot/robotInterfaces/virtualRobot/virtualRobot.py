@@ -29,13 +29,17 @@ class VirtualRobot(Robot):
         heigth = self.heigth
 
         legs = {
-            "front_left": VirtualLeg("front left leg",   (length / 2,width/2,   heigth)),
-            "front_right": VirtualLeg("front right leg", (length / 2, -width/2 , heigth)),
-            "rear_right": VirtualLeg("rear right leg",   (-length / 2, -width/2, heigth)),
-            "rear_left": VirtualLeg("rear left leg",     (-length / 2, width/2,  heigth)),
+            "front_left": VirtualLeg("front_left",   (length / 2,width/2,   heigth)),
+            "front_right": VirtualLeg("front_right", (length / 2, -width/2 , heigth)),
+            "rear_right": VirtualLeg("rear_right",   (-length / 2, -width/2, heigth)),
+            "rear_left": VirtualLeg("rear_left",     (-length / 2, width/2,  heigth)),
             }
 
         return legs
+
+    def move_legs_to_angles(self, angles):
+        for leg in self.legs.items():
+            leg[1].move_to_angle(*angles)
 
     def read_feet(self):
             return [0, 0, 0, 0]

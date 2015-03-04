@@ -15,10 +15,17 @@ source = scene.objects
 class VirtualLeg(Leg):
     def __init__(self, name, position):
         Leg.__init__(self, name, position)
-        self.armature = source.get(name)
+        print(self.name)
+        self.armature = source.get("armature")
+        self.channels = []
+        for channel in self.armature.channels:
+            if self.name in str(channel):
+                self.channels.append(channel)
+        print (self.channels)
 
 
     def move_to_angle(self, shoulderAngle, femurAngle, tibiaAngle):
+        print(self.name, tibiaAngle)
         """
         angles in radians.
         :param shoulderAngle:
@@ -28,7 +35,7 @@ class VirtualLeg(Leg):
         """
         self.check_limits(shoulderAngle,femurAngle,tibiaAngle)
         # print(self.name, "virtual shoulder:" , shoulderAngle)
-        leg = self.armature
+        leg = self#.armature
         shoulder = leg.channels[0]
         shoulder.rotation_mode = bge.logic.ROT_MODE_XYZ
         shoulder.rotation_euler = (0, -shoulderAngle, 0)
@@ -41,7 +48,7 @@ class VirtualLeg(Leg):
 
         tibia = leg.channels[3]
         tibia.rotation_mode = bge.logic.ROT_MODE_XYZ
-        tibia.rotation_euler = (0, 0, -tibiaAngle)
+        tibia.rotation_euler = (0, 0, -tibiaAngle*self.direction)
 
-        leg.update()
+        self.armature.update()
 

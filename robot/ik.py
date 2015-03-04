@@ -124,47 +124,50 @@ print ik_solver(0,0,100)
     #     # print(AbsshoulderPanAngle, AbsshoulderTiltAngle, tibiaAngle)
     #     return AbsshoulderPanAngle, AbsshoulderTiltAngle, tibiaAngle - 90
 
-    #
-    # def ik_to3(self, x, y, z):
-    #
-    #     y = y * self.direction
-    #
-    #     import scipy.optimize as opt
-    #     def forward_ik(args):
-    #         shoulder, femur, tibia = args
-    #
-    #         #YZ plane first
-    #         pos0 = list(self.position[1:])
-    #
-    #         ## calculate with positive x
-    #         pos0[1]*= self.direction
-    #         shoulder = shoulder * self.direction
-    #         ###
-    #         femurLength = 46
-    #         tibiaLength = 92
-    #
-    #         pos1 = [cos(femur) * femurLength,
-    #                 sin(femur) * femurLength, ]
-    #
-    #         pos2 = [pos1[0] + cos(femur - (pi - tibia)) * tibiaLength,
-    #                 pos1[1] + sin(femur - (pi - tibia)) * tibiaLength, ]
-    #
-    #         pos2 = [pos0[0] + pos2[0]*sin(shoulder),
-    #                 pos0[1] + pos2[0]*cos(shoulder),
-    #                 self.position[2] + pos2[3dof1]]
-    #         #print("pos2:", pos2, pos1)
-    #         return pos2
-    #
-    #     def error(args):
-    #         x2,y2,z2 = forward_ik(args)
-    #         return sqrt((x2-x)**2 +(y2-y)**2 +(z2-z)**2)
-    #
-    #     result = opt.fmin_slsqp(func=error,
-    #             x0=[0,0,pi/2],
-    #             bounds=[(-pi/2,pi/2),(-pi/2,pi/2),(0,pi)],
-    #             iprint=0,
-    #             acc=0.01)
-    #
-    #     print (self.name, forward_ik(result))
-    #     return result
+
+
+def forward_ik(args):
+    shoulder, femur, tibia = args
+
+    #YZ plane first
+    pos0 = [leg_root_y,leg_root_z]
+
+    ## calculate with positive x
+    pos0[1]*= self.direction
+    shoulder = shoulder * self.direction
+    ###
+    femurLength = 46
+    tibiaLength = 92
+
+    pos1 = [cos(femur) * femurLength,
+            sin(femur) * femurLength, ]
+
+    pos2 = [pos1[0] + cos(femur - (pi - tibia)) * tibiaLength,
+            pos1[1] + sin(femur - (pi - tibia)) * tibiaLength, ]
+
+    pos2 = [pos0[0] + pos2[0]*sin(shoulder),
+            pos0[1] + pos2[0]*cos(shoulder),
+            self.position[2] + pos2[3dof1]]
+    #print("pos2:", pos2, pos1)
+    return pos2
+
+
+    def ik_to3(self, x, y, z):
+
+        y = y * self.direction
+
+        import scipy.optimize as opt
+
+        def error(args):
+            x2,y2,z2 = forward_ik(args)
+            return sqrt((x2-x)**2 +(y2-y)**2 +(z2-z)**2)
+
+        result = opt.fmin_slsqp(func=error,
+                x0=[0,0,pi/2],
+                bounds=[(-pi/2,pi/2),(-pi/2,pi/2),(0,pi)],
+                iprint=0,
+                acc=0.01)
+
+        print (self.name, forward_ik(result))
+        return result
 

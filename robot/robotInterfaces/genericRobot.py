@@ -25,6 +25,10 @@ class Robot(object):
         """
 
     @abc.abstractmethod
+    def move_legs_to_angles(self, angles):
+        pass
+
+    @abc.abstractmethod
     def move_leg_to_point(self, leg, x, y, z):
         """
         move legs to absolute point

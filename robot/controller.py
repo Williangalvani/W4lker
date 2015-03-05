@@ -12,7 +12,7 @@ import numpy
 class RobotController():
     def __init__(self, robot):
         self.robot = robot
-        self.dx = 0
+        self.dx = 100
         self.dy = 0
         self.dz = 0
         self.drot = [0, 0, 0]
@@ -55,7 +55,7 @@ class RobotController():
 
         for i in range(1, 1000):
             self.iterate()
-            time.sleep(0.2)
+            # time.sleep(0.2)
 
     i = 0
 
@@ -80,7 +80,7 @@ class RobotController():
 
 
     def move_legs_to_angles(self,a,b,c):
-        self.robot.move_legs_to_angles( [a/100,b/100,c/100])
+        self.robot.move_legs_to_angles( [a,b,c])
 
     def iterate(self):
         # self.i += 1
@@ -90,8 +90,9 @@ class RobotController():
         except Exception as e:
             print("could not read keyboard:", e)
         # self.move_legs_to_offset([self.dx,self.dy,self.dz])
-        #self.move_legs_to_angles(self.dx,self.dy,self.dz)
+        # self.move_legs_to_angles(math.pi/4,math.pi/4,math.pi/4)
         self.trot()
+        time.sleep(0.005)
 
 
     def read_keyboard(self):

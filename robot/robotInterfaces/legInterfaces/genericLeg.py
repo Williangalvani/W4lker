@@ -15,7 +15,7 @@ class Leg():
     femurServo = None
     position = None
     orientation = None
-    direction = 1
+    ydirection = 1
     footPosition = [0,0,0]
     angles = [0,0,0]
 
@@ -25,7 +25,7 @@ class Leg():
         self.tibiaLength = robotData.tibiaLength
         self.femurLength = robotData.femurLength
         if "right" in self.name:
-            self.direction = -1
+            self.ydirection = -1
 
     def ik_to(self, x0, y0, z0):
 
@@ -36,7 +36,7 @@ class Leg():
         FEMUR_LENGTH = robotData.femurLength
         TIBIA_LENGTH = robotData.tibiaLength
 
-        x, y, z = dy * self.direction, -dz, -dx * self.direction
+        x, y, z = dy * self.ydirection, -dz, -dx * self.ydirection
 
         tibiaAngle = acos(((sqrt(
             ((sqrt(x ** 2 + z ** 2)) - COXA_LENGTH) ** 2 + y ** 2)) ** 2 - TIBIA_LENGTH ** 2 - FEMUR_LENGTH ** 2) / (
@@ -71,7 +71,7 @@ class Leg():
         shoulderServoLimits = robotData.shoulderServoLimits
         tibiaServoLimits = robotData.tibiaServoLimits
 
-        if self.direction == -1:
+        if self.ydirection == -1:
             shoulderServoLimits = [-shoulderServoLimits[1], -shoulderServoLimits[0]]
 
         if femurAngle < femurServoLimits[0]:

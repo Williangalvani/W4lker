@@ -1,7 +1,10 @@
 import struct
 import serial
 from threading import Thread
-from queue import Queue
+try:
+    from Queue import Queue
+except:
+    from queue import Queue
 import time
 
 

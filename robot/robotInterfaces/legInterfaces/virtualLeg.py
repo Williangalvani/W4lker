@@ -22,6 +22,7 @@ class VirtualLeg(Leg):
             if self.name in str(channel):
                 self.channels.append(channel)
         print (self.channels)
+        self.direction = -1 if "right" in self.name else 1
 
 
     def move_to_angle(self, shoulderAngle, femurAngle, tibiaAngle):

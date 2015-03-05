@@ -1,9 +1,12 @@
+import time
 from robot import controller
 
-from robot.robotInterfaces.virtualRobot.virtualRobot import VirtualRobot
+# from robot.robotInterfaces.virtualRobot.virtualRobot import VirtualRobot
+from robot.robotInterfaces.virtualRobot.virtualRobotVrep import VirtualRobotVrep as VirtualRobot
 from robot.robotInterfaces.realRobot.realRobot import RealRobot
 
 robot1 = VirtualRobot()
+
 try:
     robot2 = RealRobot()
 except:
@@ -18,9 +21,16 @@ if robot2:
 
 print("script ready!")
 
+
+
+
 def run():
     global controller1, controller2
     controller1.iterate()
-
+    time.sleep(0.02)
     if robot2:
         controller2.iterate()
+
+if __name__ == "__main__":
+    while(1):
+        run()

@@ -30,7 +30,7 @@ class TrotGait(Gait):
     currentDistance = 0
 
     def __init__(self, robot):
-        super().__init__(robot)
+        Gait.__init__(self, robot)
         self.z_profile.append(self.z_profile[0])
         self.robot = robot
 
@@ -44,7 +44,7 @@ class TrotGait(Gait):
         """
         index = math.floor(prog*self.z_points)
         diff = prog * self.z_points - index
-        value = self.z_profile[index] + (self.z_profile[index+1] - self.z_profile[index])*diff
+        value = self.z_profile[int(index)] + (self.z_profile[int(index+1)] - self.z_profile[int(index)])*diff
 
         prog = prog if prog <= 0.5 else 1-prog
         speed = prog * 2

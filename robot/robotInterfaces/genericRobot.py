@@ -39,6 +39,9 @@ class Robot(object):
         :return:
         """
 
+    def finish_iteration(self):
+        pass
+
     def start(self):
         pass
 

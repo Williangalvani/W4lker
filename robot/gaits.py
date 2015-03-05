@@ -8,7 +8,7 @@ from robot.tranforms import rotateAroundCenter, distance
 
 class Gait():
     def __init__(self, robot):
-        pass
+        self.lasttime = time.time()
 
     def height_at_progression(self, prog):
         pass
@@ -35,7 +35,6 @@ class TrotGait(Gait):
         self.robot = robot
 
 
-
     def height_at_progression(self, prog):
         """
 
@@ -55,7 +54,7 @@ class TrotGait(Gait):
 
 
     def iterate(self, delta, deltaRot):
-
+        # dt = time.time() - self.lasttime
         rotationalDistance = distance(robotData.legs_resting_positions[0], rotateAroundCenter(robotData.legs_resting_positions[0], 'z', deltaRot[2]))
         thisDistance = math.sqrt(delta[0]**2 + delta[1]**2 + delta[2]**2) + rotationalDistance
         self.currentDistance = (self.currentDistance + thisDistance) % self.stepDistance

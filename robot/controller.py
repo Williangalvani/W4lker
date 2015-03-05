@@ -7,6 +7,7 @@ import math
 from math import radians as d2r
 from robot.tranforms import rotate
 from robot import robotData
+from robot.input.keylistener import KeyListener
 import numpy
 
 class RobotController():
@@ -17,7 +18,7 @@ class RobotController():
         self.dz = 0
         self.drot = [0, 0, 0]
 
-
+        self.keyListener = KeyListener()
         self.startTime = time.time()
         self.trotgait = TrotGait(self.robot)
         self.trotgait.reset()
@@ -92,49 +93,44 @@ class RobotController():
         # self.move_legs_to_offset([self.dx,self.dy,self.dz])
         # self.move_legs_to_angles(math.pi/4,math.pi/4,math.pi/4)
         self.trot()
+        self.robot.finish_iteration()
         time.sleep(0.005)
 
 
     def read_keyboard(self):
-        import bge
-        co = bge.logic.getCurrentController()
-        # 'Keyboard' is a keyboard sensor
-        sensor = co.sensors["Keyboard.001"]
-        # print(sensor)
-        dx = dy = dz = 0
-        for key,status in sensor.events:
-                # key[0] == bge.events.keycode, key[1] = status
-                print(key,status)
-                if status == bge.logic.KX_INPUT_ACTIVE:
-                        if key == 119:
-                            dx = 1
-                        elif key == 115:
-                            dx = -1
-                        else:
-                            dx = 0
-                        if key == 97:
-                            dy = 1
-                        elif key == 100:
-                            dy = -1
-                        else:
-                            dy = 0
-                        if key == 114:
-                            dz = 1
-                        elif key == 102:
-                            dz = -1
-                        else:
-                            dz = 0
-                        if key == 113:
-                            self.drot[2] += 0.001
-                        elif key == 101:
-                            self.drot[2] -= 0.001
 
-                        if key == 49:
-                            self.robot.disconnect()
+        dx = dy = dz = 0
+
+
+        if self.keyListener.get_key(119):
+            dx = 1
+        elif self.keyListener.get_key(115):
+            dx = -1
+        else:
+            dx = 0
+        if self.keyListener.get_key(97):
+            dy = 1
+        elif self.keyListener.get_key(100):
+            dy = -1
+        else:
+            dy = 0
+        if self.keyListener.get_key(114):
+            dz = 1
+        elif self.keyListener.get_key(102):
+            dz = -1
+        else:
+            dz = 0
+        if self.keyListener.get_key(113):
+            self.drot[2] += 0.001
+        elif self.keyListener.get_key(101):
+            self.drot[2] -= 0.001
+
+        if self.keyListener.get_key(49):
+            self.robot.disconnect()
         self.dx+=dx
         self.dy+=dy
         self.dz+=dz
-
+        print(self.dx,self.dy,self.dz)
 
 
 def run_with_real_robot():

@@ -20,7 +20,11 @@ class VirtualRobotVrep(Robot):
         self.clientID = vrep.simxStart('127.0.0.1', 19997, True, True, 5000, 5)
         self.legs = self.load_legs()
         self.i = 0
+        vrep.simxSynchronous(self.clientID,True)
         print "connected with id ", self.clientID
+
+    def finish_iteration(self):
+        vrep.simxSynchronousTrigger(self.clientID)
 
     def get_joints(self):
         if self.clientID != -1:

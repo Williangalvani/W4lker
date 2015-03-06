@@ -11,7 +11,8 @@ class KeyListener():
 
     def released(self, event):
         # print dir(event)
-                    # print event.Key, event.KeyID
+        print event.Ascii, hex(event.Ascii)
+
         self.keyMap[event.Ascii] = False
 
     def get_key(self, key):

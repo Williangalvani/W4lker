@@ -120,17 +120,19 @@ class RobotController():
             dz = -1
         else:
             dz = 0
+        if self.keyListener.get_key(116):
+            self.dx = self.dy = self.dz = self.drot[2] = 0
         if self.keyListener.get_key(113):
-            self.drot[2] += 0.001
+            self.drot[2] += 0.006
         elif self.keyListener.get_key(101):
-            self.drot[2] -= 0.001
+            self.drot[2] -= 0.006
 
         if self.keyListener.get_key(49):
             self.robot.disconnect()
         self.dx+=dx
         self.dy+=dy
         self.dz+=dz
-        print(self.dx,self.dy,self.dz)
+        # print(self.dx,self.dy,self.dz)
 
 
 def run_with_real_robot():

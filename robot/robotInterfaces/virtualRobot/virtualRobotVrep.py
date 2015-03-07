@@ -52,11 +52,12 @@ class VirtualRobotVrep(Robot):
         heigth = self.heigth
         fl,fr,rr,rl = self.get_joints()
         # print "joints:" , self.get_joints()
+        rests = robotData.legs_resting_positions
         legs = {
-            "front_left": VirtualLegVrep("front_left", (fl,self.clientID),   (length / 2,width/2,   heigth)),
-            "front_right": VirtualLegVrep("front_right",(fr,self.clientID), (length / 2, -width/2 , heigth)),
-            "rear_right": VirtualLegVrep("rear_right", (rr,self.clientID),  (-length / 2, -width/2, heigth)),
-            "rear_left": VirtualLegVrep("rear_left",   (rl,self.clientID),    (-length / 2, width/2,  heigth)),
+            "front_left": VirtualLegVrep("front_left", (fl,self.clientID),   (length / 2,width/2,   heigth),rests[0]),
+            "front_right": VirtualLegVrep("front_right",(fr,self.clientID), (length / 2, -width/2 , heigth),rests[1]),
+            "rear_right": VirtualLegVrep("rear_right", (rr,self.clientID),  (-length / 2, -width/2, heigth),rests[2]),
+            "rear_left": VirtualLegVrep("rear_left",   (rl,self.clientID),    (-length / 2, width/2,  heigth),rests[3]),
             }
 
         return legs

@@ -1,53 +1,34 @@
-import abc
 from robot.robotInterfaces.legInterfaces.genericLeg import Leg
 import bge
-from math import degrees
-from robot import robotData
-from math import radians as d2r
 
-
-scene = bge.logic.getCurrentScene()
-
-co = bge.logic.getCurrentController()
-
-source = scene.objects
+source = bge.logic.getCurrentScene().objects
 
 class VirtualLeg(Leg):
-    def __init__(self, name, position):
-        Leg.__init__(self, name, position)
-        print(self.name)
+    def __init__(self, name, position,resting_position):
+        Leg.__init__(self, name, position,resting_position)
         self.armature = source.get("armature")
+        
         self.channels = []
         for channel in self.armature.channels:
             if self.name in str(channel):
                 self.channels.append(channel)
-        print (self.channels)
         self.direction = -1 if "right" in self.name else 1
 
 
     def move_to_angle(self, shoulderAngle, femurAngle, tibiaAngle):
-        print(self.name, tibiaAngle)
         """
-        angles in radians.
-        :param shoulderAngle:
-        :param femurAngle:
-        :param tibiaAngle:
-        :return:
+        Move legs joints to the specified angles, in radians.
         """
         self.check_limits(shoulderAngle,femurAngle,tibiaAngle)
-        # print(self.name, "virtual shoulder:" , shoulderAngle)
-        leg = self#.armature
-        shoulder = leg.channels[0]
+        shoulder = self.armature.channels[0]
         shoulder.rotation_mode = bge.logic.ROT_MODE_XYZ
         shoulder.rotation_euler = (0, -shoulderAngle, 0)
 
-
-        femur = leg.channels[2]
+        femur = self.armature.channels[2]
         femur.rotation_mode = bge.logic.ROT_MODE_XYZ
         femur.rotation_euler = (-femurAngle, 0, 0)
 
-
-        tibia = leg.channels[3]
+        tibia = self.armature.channels[3]
         tibia.rotation_mode = bge.logic.ROT_MODE_XYZ
         tibia.rotation_euler = (0, 0, -tibiaAngle*self.direction)
 

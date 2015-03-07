@@ -4,8 +4,8 @@ from vreptest import vrep
 import time
 
 class VirtualLegVrep(Leg):
-    def __init__(self, name, handles, position):
-        Leg.__init__(self, name, position)
+    def __init__(self, name, handles, position,resting_positions):
+        Leg.__init__(self, name, position,resting_positions)
         self.torque = 1
         self.handles, self.clientID = handles
         for key in self.handles:
@@ -30,42 +30,3 @@ class VirtualLegVrep(Leg):
         vrep.simxSetJointTargetPosition(self.clientID,self.femurHandle,femurAngle*self.ydirection,vrep.simx_opmode_oneshot)
 
         vrep.simxSetJointTargetPosition(self.clientID,self.tibiaHandle,tibiaAngle*self.ydirection,vrep.simx_opmode_oneshot)
-        import math
-        # self.torque= 0#-math.pi/2#(self.torque+ 0.0011) % 90
-        # print "pos:", self.torque
-        # for name,handle in self.handles.iteritems():
-        # #     print handle
-        # #     print vrep.simxSetJointForce(self.clientID, handle, self.torque, vrep.simx_opmode_oneshot_wait)
-        #     vrep.simxSetJointTargetPosition(self.clientID, handle, self.torque, vrep.simx_opmode_oneshot)
-        #     # # print vrep.simxSetJointTargetVelocity(self.clientID, handle, 10, vrep.simx_opmode_oneshot)
-        #     # print "currentpos:", vrep.simxGetJointPosition(self.clientID, handle, vrep.simx_opmode_oneshot)
-        #     # # print vrep.simxSetJointTargetVelocity(self.clientID, handle, 10, vrep.simx_opmode_oneshot)
-            # print "currentforce:", vrep.simxGetJointForce(self.clientID, handle, vrep.simx_opmode_oneshot)
-
-        # print(self.name, tibiaAngle)# print(self.name, tibiaAngle)
-        # """
-        # angles in radians.
-        # :par  am shoulderAngle:
-        # :param femurAngle:
-        # :param tibiaAngle:
-        # :return:
-        # """
-        # self.check_limits(shoulderAngle,femurAngle,tibiaAngle)
-        # # print(self.name, "virtual shoulder:" , shoulderAngle)
-        # leg = self#.armature
-        # shoulder = leg.channels[0]
-        # shoulder.rotation_mode = bge.logic.ROT_MODE_XYZ
-        # shoulder.rotation_euler = (0, -shoulderAngle, 0)
-        #
-        #
-        # femur = leg.channels[2]
-        # femur.rotation_mode = bge.logic.ROT_MODE_XYZ
-        # femur.rotation_euler = (-femurAngle, 0, 0)
-        #
-        #
-        # tibia = leg.channels[3]
-        # tibia.rotation_mode = bge.logic.ROT_MODE_XYZ
-        # tibia.rotation_euler = (0, 0, -tibiaAngle*self.direction)
-        #
-        # self.armature.update()
-

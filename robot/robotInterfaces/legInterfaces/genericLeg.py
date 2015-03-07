@@ -1,3 +1,5 @@
+import numpy
+
 __author__ = 'will'
 
 from robot import robotData
@@ -19,9 +21,10 @@ class Leg():
     footPosition = [0,0,0]
     angles = [0,0,0]
 
-    def __init__(self, name, position):
+    def __init__(self, name, position,resting_position):
         self.name = name
         self.position = position
+        self.resting_position = resting_position
         self.tibiaLength = robotData.tibiaLength
         self.femurLength = robotData.femurLength
         if "right" in self.name:
@@ -57,10 +60,14 @@ class Leg():
             # print("ik result:", angles)
             self.move_to_angle(*angles)
 
-            self.footPosition = [x, y, z]
+            self.footPosition = numpy.array([x, y, z])
             self.angles = angles
         except Exception as e:
             print (e)
+
+    def move_by(self, pos):
+        target = self.position + pos
+        self.move_to_pos(self, *target)
 
     def check_limits(self, shoulderAngle, femurAngle, tibiaAngle):
         shoulderAngle = degrees(shoulderAngle)

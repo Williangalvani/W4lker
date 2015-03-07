@@ -5,8 +5,8 @@ from robot.robotInterfaces.legInterfaces.genericLeg import Leg
 from math import pi
 class RealLeg(Leg):
 
-    def __init__(self, name, position, panServo, femurServo, tibiaServo):
-        super(RealLeg, self).__init__(name, position)
+    def __init__(self, name, position, panServo, femurServo, tibiaServo,resting_positions):
+        super(RealLeg, self).__init__(name, position,resting_positions)
         self.position = position
         self.panServo = panServo
         self.tibiaServo = tibiaServo

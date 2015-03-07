@@ -1,5 +1,5 @@
 import time
-from robot.gaits import TrotGait
+from robot.gaits import TrotGait, TrotGait
 
 __author__ = 'will'
 
@@ -53,13 +53,8 @@ class RobotController():
 
 
     def run(self):
-
         for i in range(1, 1000):
             self.iterate()
-            # time.sleep(0.2)
-
-    i = 0
-
 
     def trot(self):
         self.trotgait.iterate([self.dx,self.dy,self.dz],self.drot)

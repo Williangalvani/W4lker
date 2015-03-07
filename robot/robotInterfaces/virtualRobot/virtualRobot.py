@@ -28,11 +28,12 @@ class VirtualRobot(Robot):
         length = self.length
         heigth = self.heigth
 
+        resting_positions = robotData.legs_resting_positions
         legs = {
-            "front_left": VirtualLeg("front_left",   (length / 2,width/2,   heigth)),
-            "front_right": VirtualLeg("front_right", (length / 2, -width/2 , heigth)),
-            "rear_right": VirtualLeg("rear_right",   (-length / 2, -width/2, heigth)),
-            "rear_left": VirtualLeg("rear_left",     (-length / 2, width/2,  heigth)),
+            "front_left": VirtualLeg("front_left",   (length / 2,width/2,   heigth),resting_positions[0]),
+            "front_right": VirtualLeg("front_right", (length / 2, -width/2 , heigth),resting_positions[1]),
+            "rear_right": VirtualLeg("rear_right",   (-length / 2, -width/2, heigth),resting_positions[2]),
+            "rear_left": VirtualLeg("rear_left",     (-length / 2, width/2,  heigth),resting_positions[3]),
             }
 
         return legs

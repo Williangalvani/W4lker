@@ -26,9 +26,11 @@ offset = totalDistance/3
 
 resting_heigth = -50
 
-legs_resting_positions = [(front+offset, left+offset, resting_heigth),
-                          (front+offset, right-offset, resting_heigth),
-                          (back-offset, right-offset, resting_heigth),
-                          (back-offset, left+offset, resting_heigth)]    ### front left, front right, back right, back left
+cg_offet_x = 0
+
+legs_resting_positions = [(front+offset - cg_offet_x, left+offset, resting_heigth),
+                          (front+offset - cg_offet_x, right-offset, resting_heigth),
+                          (back-offset - cg_offet_x, right-offset, resting_heigth),
+                          (back-offset - cg_offet_x, left+offset, resting_heigth)]    ### front left, front right, back right, back left
 
 legs_resting_positions = numpy.array(legs_resting_positions)

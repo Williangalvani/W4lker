@@ -3,6 +3,7 @@ import abc
 
 class Robot(object):
     __metaclass__ = abc.ABCMeta
+    legs = []
 
     @abc.abstractmethod
     def load_legs(self):

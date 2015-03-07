@@ -27,7 +27,7 @@ print("script ready!")
 def run():
     global controller1, controller2
     controller1.iterate()
-    time.sleep(0.02)
+    # time.sleep(0.02)
     if robot2:
         controller2.iterate()
 

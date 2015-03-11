@@ -4,6 +4,7 @@ import abc
 class Robot(object):
     __metaclass__ = abc.ABCMeta
     legs = []
+    orientation = [0, 0, 0]
 
     @abc.abstractmethod
     def load_legs(self):

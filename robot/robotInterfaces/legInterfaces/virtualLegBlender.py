@@ -3,9 +3,12 @@ import bge
 
 source = bge.logic.getCurrentScene().objects
 
-class VirtualLeg(Leg):
-    def __init__(self, name, position,resting_position):
-        Leg.__init__(self, name, position,resting_position)
+class VirtualLegBlender(Leg):
+    """
+    Virtual Leg implementation for use with blender game engine.
+    """
+    def __init__(self, name, position, resting_position):
+        Leg.__init__(self, name, position, resting_position)
         self.armature = source.get("armature")
         
         self.channels = []

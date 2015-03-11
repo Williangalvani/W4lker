@@ -6,7 +6,7 @@ import bge
 from math import radians as d2r
 from robot import robotData
 from robot.robotInterfaces.genericRobot import Robot
-from robot.robotInterfaces.legInterfaces.virtualLeg import VirtualLeg
+from robot.robotInterfaces.legInterfaces.virtualLegBlender import VirtualLegBlender
 # viewer.create()
 key = bge.logic.keyboard.events
 scene = bge.logic.getCurrentScene()
@@ -30,10 +30,10 @@ class VirtualRobot(Robot):
 
         resting_positions = robotData.legs_resting_positions
         legs = {
-            "front_left": VirtualLeg("front_left",   (length / 2,width/2,   heigth),resting_positions[0]),
-            "front_right": VirtualLeg("front_right", (length / 2, -width/2 , heigth),resting_positions[1]),
-            "rear_right": VirtualLeg("rear_right",   (-length / 2, -width/2, heigth),resting_positions[2]),
-            "rear_left": VirtualLeg("rear_left",     (-length / 2, width/2,  heigth),resting_positions[3]),
+            "front_left": VirtualLegBlender("front_left",   (length / 2,width/2,   heigth),resting_positions[0]),
+            "front_right": VirtualLegBlender("front_right", (length / 2, -width/2 , heigth),resting_positions[1]),
+            "rear_right": VirtualLegBlender("rear_right",   (-length / 2, -width/2, heigth),resting_positions[2]),
+            "rear_left": VirtualLegBlender("rear_left",     (-length / 2, width/2,  heigth),resting_positions[3]),
             }
 
         return legs

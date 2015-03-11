@@ -9,10 +9,16 @@ from robot.robotInterfaces.genericRobot import Robot
 RATE = robotData.genericServoRate
 
 def clamp(n, minn, maxn):
+    """
+    Returns n constrained between minn and maxm
+    """
     return max(min(maxn, n), minn)
 
 
 class Servo():
+    """
+    Class responsible for representing and controlling a real life servo.
+    """
     def __init__(self, pin, pos0, rate, serial):
         self.pos0 = pos0
         self.rate = rate
@@ -23,12 +29,17 @@ class Servo():
         self.angle = 0
 
     def set_angle_limits(self, minAngle, maxAngle):
+        """
+        sets maximum and minimum achievable angles.
+        """
         self.maxAngle = maxAngle
         self.minAngle = minAngle
 
     def move_to_angle(self, angle):
+        """
+        Moves the sevo to desired angle
+        """
         angle = math.degrees(angle)
-        # print("servo received value", angle)
         newAngle = clamp(angle, self.minAngle, self.maxAngle)
         if newAngle != self.angle:
             self.angle = newAngle
@@ -37,6 +48,9 @@ class Servo():
 
 
 class RealRobot(Robot):
+    """
+    Class responsible for representing and controlling the real-life robot.
+    """
     width = robotData.width
     length = robotData.length
     heigth = robotData.heigth
@@ -69,21 +83,33 @@ class RealRobot(Robot):
         self.feet = [False, False, False, False]
 
     def read_feet(self):
+        """
+        Queues sensor feet read, and return the last read values as a list
+        """
         self.serial.queue.put(lambda: self.serial.read_pins())
         data = self.serial.input_pins
         self.feet = [not ((data >> bit) & 1) for bit in range(4 - 1, -1, -1)]
 
     def read_imu(self):
+        """
+        Queues IMU read, and returns last read value from serial reader.
+        """
         self.serial.queue.put(lambda: self.serial.read_imu())
         self.orientation = self.serial.imu
         return self.serial.imu
 
     def move_leg_to_point(self, leg, x, y, z):
-        # viewer.update_leg(leg,[leg_origin,leg_target])
+        """
+        Attempts to move 'leg' foot to position [x, y, z]
+        """
         self.legs[leg].move_to_pos(x, y, z)
         time.sleep(0.0005)
 
     def start(self):
+        """
+        "boot" function, it runs before the main loop
+        :return:
+        """
         self.serial.start()
         # for i in range(1000):
         for servo in self.servos:
@@ -92,4 +118,7 @@ class RealRobot(Robot):
         time.sleep(3)
 
     def disconnect(self):
-        self.serial.running=False
+        """
+        disconnects serial.
+        """
+        self.serial.running = False

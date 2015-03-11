@@ -10,6 +10,9 @@ import abc
 
 
 class Leg():
+    """
+    This should be an abstract leg, it's responsible for moving and locating each leg.
+    """
     __metaclass__ = abc.ABCMeta
 
     panServo = None
@@ -21,7 +24,14 @@ class Leg():
     footPosition = [0,0,0]
     angles = [0,0,0]
 
-    def __init__(self, name, position,resting_position):
+    def __init__(self, name, position, resting_position):
+        """
+
+        :param name: leg name, used to get it's pointing difection in some implementations
+        :param position: body-relative leg position
+        :param resting_position: feet resting position
+        :return:
+        """
         self.name = name
         self.position = position
         self.resting_position = resting_position
@@ -31,7 +41,13 @@ class Leg():
             self.ydirection = -1
 
     def ik_to(self, x0, y0, z0):
+        """
+        Calculates each joint angle to get the leg to coordinates x0,y0,z0
+        :return: the correct angles.
+        """
 
+        # math adapted from http://arduin0.blogspot.fi/2012/01/inverse-kinematics-ik-implementation.html
+        # after I thought I had problems with my own
         dx = x0 - self.position[0]
         dy = y0 - self.position[1]
         dz = z0 - self.position[2]
@@ -55,6 +71,9 @@ class Leg():
         return d2r(coxaAngle), d2r(femurAngle), d2r(tibiaAngle - 90)
 
     def move_to_pos(self, x, y, z):
+        """
+        Attempts to move it's foot to coordinates [x,y,z]
+        """
         try:
             angles = self.ik_to(x, y, z)
             # print("ik result:", angles)
@@ -66,10 +85,16 @@ class Leg():
             print (e)
 
     def move_by(self, pos):
+        """
+        attempts to move it's foot my an offset of it's current position
+        """
         target = self.position + pos
         self.move_to_pos(self, *target)
 
     def check_limits(self, shoulderAngle, femurAngle, tibiaAngle):
+        """
+        Checks if the desired angles are inside the physically possible constraints.
+        """
         shoulderAngle = degrees(shoulderAngle)
         femurAngle = degrees(femurAngle)
         tibiaAngle = degrees(tibiaAngle)

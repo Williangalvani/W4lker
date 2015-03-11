@@ -5,6 +5,10 @@ from pylab import ion
 import pylab
 # plt.show()
 
+#NOT USED ANYMORE, KEPT FOR POSTERITY
+###
+
+
 
 leg_index = {"front_left": 0,
         "front_right": 1,

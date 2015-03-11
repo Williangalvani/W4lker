@@ -11,38 +11,42 @@ import time
 pos = 0
 
 class SerialComms(Thread):
+    """
+    Class responsible for taking care of all serial communications, by using a queue of commands.
+    """
     ser = None
 
     def __init__(self):
         print ("starting serial")
         Thread.__init__(self)
         self.ser = serial.Serial(port='/dev/ttyUSB1',
-                        baudrate=115200,
-                        timeout=0.0001)
+                                 baudrate=115200,
+                                 timeout=0.0001)
         self.input_pins = 15
         self.running = True
-        self.imu = [0,0,0]
+        self.imu = [0, 0, 0]
         self.queue = Queue()
         print ("serial connection stabilished, starting thread")
 
 
     def run(self):
-        print ("thread running")
+        """
+        Runs the thread, the main loop waits until there's a function to call on the queue, and calls it. if it's empty,
+        it just waits.
+        """
         while self.running:
 
             if not self.queue.empty():
                 f = self.queue.get()
-                # self.ser.readall()
                 f()
-                # time.sleep(0.01)
             else:
                 time.sleep(0.0006)
-            # data= self.ser.readall()
-            # if len(data):
-            #     print data
         self.ser.close()
 
     def read_pins(self):
+        """
+        Sends serial message regarding feet status, and waits for it's response. the response is saved on self.input_pins
+        """
         self.serwrite(">$b")
         buff = ""
         start = time.time()
@@ -53,12 +57,16 @@ class SerialComms(Thread):
         try:
             self.ser.read(1)
             data = ord(self.ser.read(1)) & 0b00001111
-        except:
+        except Exception, e:
+            print("Serial error, ", e)
             return
-        # print "data:", data , buff
         self.input_pins = data
 
     def read_imu(self):
+        """
+        Sends Imu read message, waits for answer, and saves the result on self.imu
+        :return:
+        """
         self.serwrite(">$c")
         buff = ""
         start = time.time()
@@ -85,6 +93,10 @@ class SerialComms(Thread):
 
 
     def send_16(self, value):
+        """
+        sends 16bit values as 8bit bytes
+        """
+
         def packIntegerAsULong(value):
             """Packs a python 4 byte unsigned integer to an arduino unsigned long"""
             return struct.pack('H', value)
@@ -103,18 +115,20 @@ class SerialComms(Thread):
             print ("SERIAL ERROR!" , e)
 
     def serwrite(self, s):
-       self.ser.write(bytes(s, 'UTF-8'))
+        """
+        writes serial data.
+        """
+        self.ser.write(bytes(s, 'UTF-8'))
 
 
     def move_servo_to(self, servo, pos):
+        """
+        sends serial servo move message, and waits for it's answer.
+        """
         self.serwrite(">$a")
         self.serwrite(chr(servo))
         self.send_16(pos)
-        #time.sleep(0.01)
-       # print(self.ser.readall().decode())
         for i in range(3):
-            # print (self.ser.read(1))
             if 'a' in str(self.ser.read(1)):
                 if '!' in str(self.ser.read(1)):
-                    # print("ok!")
                     return

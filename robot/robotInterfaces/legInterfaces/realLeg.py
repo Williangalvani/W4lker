@@ -3,10 +3,12 @@ __author__ = 'will'
 from robot.robotInterfaces.legInterfaces.genericLeg import Leg
 
 from math import pi
+
+
 class RealLeg(Leg):
 
-    def __init__(self, name, position, panServo, femurServo, tibiaServo,resting_positions):
-        super(RealLeg, self).__init__(name, position,resting_positions)
+    def __init__(self, name, position, panServo, femurServo, tibiaServo, resting_positions):
+        super(RealLeg, self).__init__(name, position, resting_positions)
         self.position = position
         self.panServo = panServo
         self.tibiaServo = tibiaServo
@@ -17,9 +19,10 @@ class RealLeg(Leg):
 
 
     def move_to_angle(self, shoulderAngle, femurAngle, tibiaAngle):
-        self.check_limits(shoulderAngle,femurAngle,tibiaAngle   )
-        print(self.name, "real shoulder:" , shoulderAngle)
-
+        """
+        Moves joints to specified angles
+        """
+        self.check_limits(shoulderAngle, femurAngle, tibiaAngle)
         self.panServo.move_to_angle(shoulderAngle)
         self.femurServo.move_to_angle(femurAngle)
         self.tibiaServo.move_to_angle(tibiaAngle )

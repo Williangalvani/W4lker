@@ -41,9 +41,7 @@ class TrotGait(Gait):
 
     def height_at_progression(self, prog):
         """
-
-        :param prog: [0,1]
-        :return:
+        returns the foot height at prog[0-1] of the foot movement overall
         """
         index = math.floor(prog*self.z_points)
         diff = prog * self.z_points - index
@@ -55,6 +53,9 @@ class TrotGait(Gait):
         return value, speed
 
     def iterate(self, linear_speed, angular_speed):
+        """
+        do all the calculation to move feet to next location
+        """
         rests = robotData.legs_resting_positions
         rotationalDistance = distance(rests[0], rotateAroundCenter(rests[0], 'z', angular_speed[2]))
         thisDistance = math.sqrt(linear_speed[0]**2 + linear_speed[1]**2 + linear_speed[2]**2) + rotationalDistance

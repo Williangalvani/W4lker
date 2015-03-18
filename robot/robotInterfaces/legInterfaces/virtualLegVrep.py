@@ -7,10 +7,12 @@ class VirtualLegVrep(Leg):
     """
     Virtual Leg implementation for use with V-REP simulation software.
     """
-    def __init__(self, name, handles, position,resting_positions):
-        Leg.__init__(self, name, position,resting_positions)
+    def __init__(self, name, handles, clientID, position, resting_positions):
+        Leg.__init__(self, name, position, resting_positions)
         self.torque = 1
-        self.handles, self.clientID = handles
+        self.handles = handles
+        self.clientID = clientID
+
         for key in self.handles:
             if "shoulder" in key:
                 self.shoulderHandle = self.handles[key]

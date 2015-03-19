@@ -19,7 +19,7 @@ class SerialComms(Thread):
     def __init__(self):
         print ("starting serial")
         Thread.__init__(self)
-        self.ser = serial.Serial(port='/dev/ttyUSB1',
+        self.ser = serial.Serial(port='/dev/ttyUSB0',
                                  baudrate=115200,
                                  timeout=0.0001)
         self.input_pins = 15
@@ -118,8 +118,8 @@ class SerialComms(Thread):
         """
         writes serial data.
         """
-        self.ser.write(bytes(s, 'UTF-8'))
-
+        #self.ser.write(bytes(s, 'UTF-8'))
+        self.ser.write(s)
 
     def move_servo_to(self, servo, pos):
         """

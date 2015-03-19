@@ -9,7 +9,8 @@ robot1 = VirtualRobot()
 
 try:
     robot2 = RealRobot()
-except:
+except Exception, e:
+    print e
     robot2 = None
 controller1 = controller.RobotController(robot1)
 controller1.start()

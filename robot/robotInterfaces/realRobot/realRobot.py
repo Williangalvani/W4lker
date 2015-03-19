@@ -75,11 +75,11 @@ class RealRobot(Robot):
                        Servo(pin=12, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=13, rate=RATE, pos0=1500, serial=serial)]
         servos = self.servos
-
-        self.legs = {"front_left": RealLeg("front_left",(length / 2, width / 2, heigth), servos[1], servos[0], servos[2]),
-                     "front_right": RealLeg("front_right",(length/ 2,  -width/2, heigth), servos[3], servos[4], servos[5])}
-        # "rear_right" : Leg((-width/2, -length/2, heigth), 8, 9, 10, 100, 100),
-        # "rear_left"  : Leg((width/2,  -length/2, heigth), 11, 12, 13, 100, 100)}
+        rests = robotData.legs_resting_positions
+        self.legs = {"front_left": RealLeg("front_left", (length / 2, width / 2, heigth), servos[1], servos[0], servos[2], rests[0]),
+                     "front_right": RealLeg("front_right", (length/ 2,  -width/2, heigth), servos[3], servos[4], servos[5], rests[1]),
+                     "rear_right" : RealLeg("rear_right", (-length/2, -width/2, heigth), servos[6], servos[7], servos[8], rests[2]),
+                     "rear_left"  : RealLeg("rear_left", (-length/2, width/2, heigth), servos[9], servos[10], servos[11], rests[3])}
         self.feet = [False, False, False, False]
 
     def read_feet(self):
@@ -116,6 +116,12 @@ class RealRobot(Robot):
             servo.move_to_angle(0)
             # time.sleep(0.1)
         time.sleep(3)
+
+    def load_legs(self):
+        pass
+
+    def move_legs_to_angles(self, angles):
+        raise NotImplementedError()
 
     def disconnect(self):
         """

@@ -27,8 +27,17 @@ class VirtualLegVrep(Leg):
         """
         Moves V-REP legs with proper orientations to desired angles.
         """
-        vrep.simxSetJointTargetPosition(self.clientID, self.shoulderHandle, shoulderAngle, vrep.simx_opmode_oneshot)
+        vrep.simxSetJointTargetPosition(self.clientID,
+                                        self.shoulderHandle,
+                                        shoulderAngle,
+                                        vrep.simx_opmode_oneshot)
 
-        vrep.simxSetJointTargetPosition(self.clientID, self.femurHandle, femurAngle*self.ydirection, vrep.simx_opmode_oneshot)
+        vrep.simxSetJointTargetPosition(self.clientID,
+                                        self.femurHandle,
+                                        femurAngle*self.ydirection,
+                                        vrep.simx_opmode_oneshot)
 
-        vrep.simxSetJointTargetPosition(self.clientID, self.tibiaHandle, tibiaAngle*self.ydirection, vrep.simx_opmode_oneshot)
+        vrep.simxSetJointTargetPosition(self.clientID,
+                                        self.tibiaHandle,
+                                        tibiaAngle*self.ydirection,
+                                        vrep.simx_opmode_oneshot)

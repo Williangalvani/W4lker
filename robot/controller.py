@@ -8,10 +8,12 @@ from math import radians as d2r
 from robot.tranforms import rotate
 from robot import robotData
 from robot.input.keylistener import KeyListener
+from robot.input.joystickinput import Joystick
 
 
 class RobotController():
     def __init__(self, robot):
+        self.joystick = None
         self.robot = robot
         self.dx = 100
         self.dy = 0
@@ -96,13 +98,33 @@ class RobotController():
         """
         runs one iteration of the code, usually called in a loop
         """
-        try:
-            self.read_keyboard()
-        except Exception as e:
-            print("could not read keyboard:", e)
+        #try:
+        self.read_joystick()
+        #except Exception, e:
+            # print e
+            # try:
+            #     self.read_keyboard()
+            # except Exception as e:
+            #     print("could not read keyboard:", e)
+
         self.trot()
         self.robot.finish_iteration()
         time.sleep(0.005)
+
+    def read_joystick(self):
+        if not self.joystick:
+            self.joystick = Joystick()
+            self.joystick.start()
+        self.dx = self.joystick.get_channel("throttle")
+        self.dy = self.joystick.get_channel("yaw")
+
+        if self.joystick.getButton("orientation"):
+            self.drot[0] = self.joystick.get_channel("roll")/300
+            self.drot[1] = self.joystick.get_channel("pitch")/300
+        else:
+            self.drot[2] = self.joystick.get_channel("roll")/200
+        # print self.dx, self.dy, self.drot
+
 
     def read_keyboard(self):
         """

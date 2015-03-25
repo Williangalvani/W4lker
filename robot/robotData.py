@@ -22,7 +22,7 @@ front = length/2
 back = -length/2
 left = width/2
 right = -width/2
-offset = totalDistance/3
+offset = totalDistance/2
 
 resting_heigth = -50
 

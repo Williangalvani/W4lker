@@ -71,7 +71,7 @@ class VirtualRobotVrep(Robot):
     def read_imu(self):
         self.orientation[1] += 0.1
         self.orientation[1]%= 30
-        print(self.orientation)
+        #print(self.orientation)
         return self.orientation
 
     def move_leg_to_point(self, leg, x, y, z):

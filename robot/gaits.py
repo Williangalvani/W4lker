@@ -22,7 +22,7 @@ class Gait():
 
 class TrotGait(Gait):
 
-    z_profile = [0, 0, 0, 0, 0, 5, 20, 25, 20, 3] #leg height x time
+    z_profile = [0, 0, 0, 0, 0, 10, 40, 40, 30, 7] #leg height x time
 
     z_points = len(z_profile)
     startTime = 0
@@ -73,14 +73,20 @@ class TrotGait(Gait):
             total_offset = angular_offset - linear_speed
             offset = speed_direction_pair1*total_offset
             offset[2] = height_pair1
-            leg.move_to_pos(*(leg.resting_position + offset))
+            rotated_position = self.get_rotated_leg_resting_positions(leg,angular_speed)
+            leg.move_to_pos(*(rotated_position + offset))
 
         for leg in self.group2:
             angular_offset = rotateAroundCenter(leg.resting_position, 'z', angular_speed[2]) - leg.resting_position
             total_offset = angular_offset - linear_speed
             offset = speed_direction_pair2*total_offset
             offset[2] = height_pair2
-            leg.move_to_pos(*(leg.resting_position + offset))
+            rotated_position = self.get_rotated_leg_resting_positions(leg,angular_speed)
+            leg.move_to_pos(*(rotated_position + offset))
 
-        print time.time()
 
+        #print time.time()
+
+    def get_rotated_leg_resting_positions(self,leg,drot):
+        rotx = rotateAroundCenter(leg.resting_position,"x",drot[0])
+        return rotateAroundCenter(rotx,"y",drot[1])

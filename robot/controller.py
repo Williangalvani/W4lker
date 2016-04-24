@@ -98,14 +98,13 @@ class RobotController():
         """
         runs one iteration of the code, usually called in a loop
         """
-        #try:
-        self.read_joystick()
-        #except Exception, e:
-            # print e
-            # try:
-            #     self.read_keyboard()
-            # except Exception as e:
-            #     print("could not read keyboard:", e)
+        try:
+            self.read_joystick()
+        except Exception, e:
+            try:
+                 self.read_keyboard()
+            except Exception as e:
+                 print("could not read keyboard:", e)
 
         self.trot()
         self.robot.finish_iteration()
@@ -113,8 +112,7 @@ class RobotController():
 
     def read_joystick(self):
         if not self.joystick:
-            self.joystick = Joystick()
-            self.joystick.start()
+            raise Exception("no joystick!")
         self.dx = self.joystick.get_channel("throttle")
         self.dy = self.joystick.get_channel("yaw")
 

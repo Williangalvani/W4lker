@@ -55,35 +55,39 @@ class Joystick(threading.Thread):
         centers = self.channels_center
         expo = self.expo
 
+        if not self.joystick_present:
+            self.connect()
+            time.sleep(1)
+
+
         while True:
-            if not self.joystick_present:
-                self.connect()
-            else:
-                time.sleep(0.05)
 
-                # # necessary for pygame to read the joystick
-                for event in pygame.event.get():
-                    pass
-                #print self.raw_channels
 
-                ## process axis
-                axis = [self.joystick.get_axis(axis1) * 100 for axis1 in range(self.n_axes)]
+            time.sleep(0.05)
 
-                self.raw_channels[map['throttle']] = expo(centers['throttle'], -axis[1])
-                self.raw_channels[map['yaw']] =     -expo(centers['yaw'], axis[0])
-                self.raw_channels[map['pitch']] =    expo(centers['pitch'], -axis[3])
-                self.raw_channels[map['roll']] =     expo(centers['roll'], axis[2])
+            # # necessary for pygame to read the joystick
+            for event in pygame.event.get():
+                pass
+            #print self.raw_channels
 
-                ## process buttons
-                self.buttons = [self.joystick.get_button(but) * 100 for but in range(self.n_buttons)]
-                #print self.buttons
+            ## process axis
+            axis = [self.joystick.get_axis(axis1) * 100 for axis1 in range(self.n_axes)]
 
-                ### process directionals (hat)
-                directionals = self.joystick.get_hat(0)
-                self.directionals['up'] = directionals[1] == 1
-                self.directionals['down'] = directionals[1] == -1
-                self.directionals['left'] = directionals[0] == -1
-                self.directionals['right'] = directionals[0] == 1
+            self.raw_channels[map['throttle']] = expo(centers['throttle'], -axis[1])
+            self.raw_channels[map['yaw']] =     -expo(centers['yaw'], axis[0])
+            self.raw_channels[map['pitch']] =    expo(centers['pitch'], -axis[3])
+            self.raw_channels[map['roll']] =     expo(centers['roll'], axis[2])
+
+            ## process buttons
+            self.buttons = [self.joystick.get_button(but) * 100 for but in range(self.n_buttons)]
+            #print self.buttons
+
+            ### process directionals (hat)
+            directionals = self.joystick.get_hat(0)
+            self.directionals['up'] = directionals[1] == 1
+            self.directionals['down'] = directionals[1] == -1
+            self.directionals['left'] = directionals[0] == -1
+            self.directionals['right'] = directionals[0] == 1
 
     def expo(self, center, value):
         return value-center

@@ -45,7 +45,7 @@ try:
     from Xlib.ext import record
     from Xlib.protocol import rq
 except:
-    print "Xlig not found! please run 'sudo apt-get install python-xlibsadaqweasdqweasdqwe'"
+    print "Xlib not found! please run 'sudo apt-get install python-xlib'"
 #######################################################################
 ########################START CLASS DEF################################
 #######################################################################

@@ -130,6 +130,9 @@ class QrFinder():
         self.corrected = np.zeros((100, 100), np.uint8)  # image with corrected perspective
         cv2.namedWindow('contours')
         cv2.setMouseCallback('contours',self.clickCallback)
+        self.target = None
+        self.center = None
+        self.finalAngle = None
 
     def find_code(self, img):
         h, w = img.shape[:2]
@@ -167,17 +170,14 @@ class QrFinder():
             except Exception, e:
                 print e
 
-        try:
+        if self.center is not None and self.finalAngle is not None:
             p2 = (int(self.center[0][0]+math.cos(math.radians(self.finalAngle))*50),
                   int(self.center[0][1]+math.sin(math.radians(self.finalAngle))*50))
             cv2.line(vis, tuple(self.center[0]), tuple(p2), 255)
-        except Exception, e:
-            print e
 
-        try:
+        if self.target is not None:
             cv2.circle(vis, self.target, 3, 0, 2)
-        except:
-            pass
+
 
         cv2.imshow('contours', vis)
 

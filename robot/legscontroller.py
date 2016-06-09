@@ -101,12 +101,6 @@ class RobotController():
         runs one iteration of the code, usually called in a loop
         """
 
-        for input in self.inputs:
-            try:
-                input()
-            except Exception, e:
-                print e
-
         start = time.time()
         if self.camera_handler:
             self.camera_handler(self.robot.get_image_from_camera())
@@ -116,10 +110,6 @@ class RobotController():
         #self.move_legs_to_angles(pi/4, 0, 0)
         self.trot()
         self.robot.finish_iteration()
-
-
-
-
 
 
     def read_joystick(self):
@@ -165,7 +155,6 @@ class RobotController():
             self.drot[2] += 0.006
         elif self.keyListener.get_key(101):
             self.drot[2] -= 0.006
-            print "bingo"
 
         if self.keyListener.get_key(49):
             self.robot.disconnect()

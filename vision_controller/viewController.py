@@ -17,9 +17,9 @@ class ViewController():
     def handle_image(self,img):
         start= time.time()
         if img is not None:
-            cv2.imshow("camera", img)
+            #cv2.imshow("camera", img)
             cv2.waitKey(1)
-            print "took " , time.time() - start
-            self.token_locator.find_code(img)
 
+            self.token_locator.find_code(img)
+            #print "Vision system took ", time.time() - start
 

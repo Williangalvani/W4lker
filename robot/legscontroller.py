@@ -165,6 +165,7 @@ class RobotController():
             self.drot[2] += 0.006
         elif self.keyListener.get_key(101):
             self.drot[2] -= 0.006
+            print "bingo"
 
         if self.keyListener.get_key(49):
             self.robot.disconnect()

@@ -10,6 +10,7 @@ import math
 
 
 
+
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
     a, b = tee(iterable)
@@ -42,6 +43,7 @@ class QrFinder():
 
         ## detect center of mass, and each corner before decoding
         center = sum(approx) / 4
+        self.center = center
         topleft = None
         topright = None
         bottomleft = None
@@ -60,11 +62,15 @@ class QrFinder():
         targetperspective = np.float32(
             [[[0, 0]], [[100, 0]], [[100, 100]], [[0, 100]]])  ### use points to calculate perspective matrix
         source_perspective = np.float32([topleft, topright, bottomright, bottomleft])
+#        uncorrected_angle = math.atan2(topleft[0][0]-bottomleft[0][0],topleft[0][1]-bottomleft[0][1])
+
+        uncorrected_angle = math.atan2(topleft[0][1]-bottomleft[0][1],topleft[0][0]-bottomleft[0][0])
 
         matrix = cv2.getPerspectiveTransform(source_perspective, targetperspective)
         cv2.warpPerspective(source, matrix, (100, 100),
                             self.corrected)  ### transforms the image to make the token planas
 
+        #print matrix
         bits = []
         gridsize = 3
         step = 100 / (gridsize + 2)
@@ -108,41 +114,52 @@ class QrFinder():
         rotation = cv2.getRotationMatrix2D((50, 50), angle, 1.0)
         self.corrected = cv2.warpAffine(self.corrected, rotation, (100, 100))
 
+
+        self.finalAngle = angle + math.degrees(uncorrected_angle)
+        print "angle: ", self.finalAngle
         ### only gets here if the number of markers is right
 
-        for y in range(freeborder,gridsize+freeborder):
-            for x in range(freeborder,gridsize+freeborder):
-                bits.append(self.corrected[step / 2 + step * y + 2][step / 2 + step * x])
-                cv2.circle(self.corrected, (step / 2 + step * x, step / 2 + step * y), 3, (255, 0, 0), 1)
+        # for y in range(freeborder,gridsize+freeborder):
+        #     for x in range(freeborder,gridsize+freeborder):
+        #         bits.append(self.corrected[step / 2 + step * y + 2][step / 2 + step * x])
+        #         cv2.circle(self.corrected, (step / 2 + step * x, step / 2 + step * y), 3, (255, 0, 0), 1)
 
 
-        text = ""
-        for pixel in bits:
-            text += "1" if pixel < avg else "0"
-        data = [text[i:i + 8] for i in range(0, len(text), 8)]
+        # text = ""
+        # for pixel in bits:
+        #     text += "1" if pixel < avg else "0"
+        # data = [text[i:i + 8] for i in range(0, len(text), 8)]
 
         result = ""
         cv2.namedWindow('corrected')
         cv2.imshow('corrected', self.corrected)
-        data, checksum = data[:-1], data[-1]
+        # data, checksum = data[:-1], data[-1]
+        #
+        # for number in data:
+        #     try:
+        #         n = int('0b' + number, 2)
+        #         result += binascii.unhexlify('%x' % n)
+        #     except:
+        #         pass
+        #
+        # bitstring = '0b'+''.join(data)
+        # while bitstring.endswith("00000000"):
+        #     bitstring = bitstring[:-8]
+        # checksumcalculated = bin(sum(map(ord, bitstring)) % 255)
+        # if checksum == checksumcalculated[2:]:
+        #     print result#, checksum, checksumcalculated
+        return True
 
-        for number in data:
-            try:
-                n = int('0b' + number, 2)
-                result += binascii.unhexlify('%x' % n)
-            except:
-                pass
+    def clickCallback(self,event, x, y, flags,param):
+        if event == cv2.EVENT_LBUTTONUP:
+            self.target = (x,y)
 
-        bitstring = '0b'+''.join(data)
-        while bitstring.endswith("00000000"):
-            bitstring = bitstring[:-8]
-        checksumcalculated = bin(sum(map(ord, bitstring)) % 255)
-        if checksum == checksumcalculated[2:]:
-            print result#, checksum, checksumcalculated
 
     def __init__(self):
         self.cap = None
         self.corrected = np.zeros((100, 100), np.uint8)  # image with corrected perspective
+        cv2.namedWindow('contours')
+        cv2.setMouseCallback('contours',self.clickCallback)
 
         # try:
         #     self.cap = cv2.VideoCapture(0)  # open first camera?
@@ -151,9 +168,9 @@ class QrFinder():
         # except:
         #     print "could not open camera!"
 
-        cv2.namedWindow('edge')
-        cv2.createTrackbar('thrs1', 'edge', 2000, 5000, nothing)
-        cv2.createTrackbar('thrs2', 'edge', 4000, 5000, nothing)
+        #cv2.namedWindow('edge')
+        #cv2.createTrackbar('thrs1', 'edge', 2000, 5000, nothing)
+        #cv2.createTrackbar('thrs2', 'edge', 4000, 5000, nothing)
 
         # while True:
         #     flag, self.img = self.cap.read()  # read a frame
@@ -165,13 +182,13 @@ class QrFinder():
         h, w = img.shape[:2]
 
         gray = img
-        thrs1 = cv2.getTrackbarPos('thrs1', 'edge')
-        thrs2 = cv2.getTrackbarPos('thrs2', 'edge')
+        thrs1 = 2000#cv2.getTrackbarPos('thrs1', 'edge')
+        thrs2 = 4000#cv2.getTrackbarPos('thrs2', 'edge')
         edge = cv2.Canny(gray, thrs1, thrs2, apertureSize=5)
         vis = img.copy()
         vis /= 2
         vis[edge != 0] = 0
-        cv2.imshow('edge', vis)
+        #cv2.imshow('edge', vis)
 
         vis2 = np.zeros((h, w), np.uint8)
         vis2[edge != 0] = 255
@@ -192,9 +209,22 @@ class QrFinder():
         cv2.drawContours(vis, selected, -1, (255, 0, 0), 2, cv2.LINE_AA)
         for candidate in selected:
             try:
-                self.try_to_decode(candidate, gray, vis)
+                if self.try_to_decode(candidate, gray, vis):
+                    break
             except Exception, e:
                 print e
+
+        try:
+            p2 = (int(self.center[0][0]+math.cos(math.radians(self.finalAngle))*50),
+                  int(self.center[0][1]+math.sin(math.radians(self.finalAngle))*50))
+            cv2.line(vis,tuple(self.center[0]),tuple(p2),255)
+        except Exception, e:
+            print e
+
+        try:
+            cv2.circle(vis, self.target, 3, 0, 2)
+        except:
+            pass
 
         cv2.imshow('contours', vis)
 

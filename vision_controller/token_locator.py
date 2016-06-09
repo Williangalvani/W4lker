@@ -62,7 +62,6 @@ class QrFinder():
         targetperspective = np.float32(
             [[[0, 0]], [[100, 0]], [[100, 100]], [[0, 100]]])  ### use points to calculate perspective matrix
         source_perspective = np.float32([topleft, topright, bottomright, bottomleft])
-#        uncorrected_angle = math.atan2(topleft[0][0]-bottomleft[0][0],topleft[0][1]-bottomleft[0][1])
 
         uncorrected_angle = math.atan2(topleft[0][1]-bottomleft[0][1],topleft[0][0]-bottomleft[0][0])
 
@@ -70,13 +69,11 @@ class QrFinder():
         cv2.warpPerspective(source, matrix, (100, 100),
                             self.corrected)  ### transforms the image to make the token planas
 
-        #print matrix
-        bits = []
+
         gridsize = 3
         step = 100 / (gridsize + 2)
         min, max = cv2.minMaxLoc(self.corrected)[:2]
         avg = (min + max) / 2
-        offset = step/2
         freeborder = 1
 
 
@@ -99,9 +96,8 @@ class QrFinder():
 
         ### abort if wrong number of markers
         if topleft + topright + bottomright + bottomleft != 3:
-            #print "bad" , topleft , topright , bottomright  , bottomleft, self.corrected[bottomleftpos[0]][bottomleftpos[1]]
             return None
-        #print "good"
+
         ### detects need of rotation
         angle = 0
         if not topleft:
@@ -119,35 +115,9 @@ class QrFinder():
         print "angle: ", self.finalAngle
         ### only gets here if the number of markers is right
 
-        # for y in range(freeborder,gridsize+freeborder):
-        #     for x in range(freeborder,gridsize+freeborder):
-        #         bits.append(self.corrected[step / 2 + step * y + 2][step / 2 + step * x])
-        #         cv2.circle(self.corrected, (step / 2 + step * x, step / 2 + step * y), 3, (255, 0, 0), 1)
-
-
-        # text = ""
-        # for pixel in bits:
-        #     text += "1" if pixel < avg else "0"
-        # data = [text[i:i + 8] for i in range(0, len(text), 8)]
-
-        result = ""
         cv2.namedWindow('corrected')
         cv2.imshow('corrected', self.corrected)
-        # data, checksum = data[:-1], data[-1]
-        #
-        # for number in data:
-        #     try:
-        #         n = int('0b' + number, 2)
-        #         result += binascii.unhexlify('%x' % n)
-        #     except:
-        #         pass
-        #
-        # bitstring = '0b'+''.join(data)
-        # while bitstring.endswith("00000000"):
-        #     bitstring = bitstring[:-8]
-        # checksumcalculated = bin(sum(map(ord, bitstring)) % 255)
-        # if checksum == checksumcalculated[2:]:
-        #     print result#, checksum, checksumcalculated
+
         return True
 
     def clickCallback(self,event, x, y, flags,param):
@@ -161,24 +131,7 @@ class QrFinder():
         cv2.namedWindow('contours')
         cv2.setMouseCallback('contours',self.clickCallback)
 
-        # try:
-        #     self.cap = cv2.VideoCapture(0)  # open first camera?
-        #     self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280);
-        #     self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768);
-        # except:
-        #     print "could not open camera!"
-
-        #cv2.namedWindow('edge')
-        #cv2.createTrackbar('thrs1', 'edge', 2000, 5000, nothing)
-        #cv2.createTrackbar('thrs2', 'edge', 4000, 5000, nothing)
-
-        # while True:
-        #     flag, self.img = self.cap.read()  # read a frame
-        #     self.find_code(self.img)
-        # cv2.destroyAllWindows()
-
-
-    def find_code(self,img ):
+    def find_code(self, img):
         h, w = img.shape[:2]
 
         gray = img
@@ -217,7 +170,7 @@ class QrFinder():
         try:
             p2 = (int(self.center[0][0]+math.cos(math.radians(self.finalAngle))*50),
                   int(self.center[0][1]+math.sin(math.radians(self.finalAngle))*50))
-            cv2.line(vis,tuple(self.center[0]),tuple(p2),255)
+            cv2.line(vis, tuple(self.center[0]), tuple(p2), 255)
         except Exception, e:
             print e
 

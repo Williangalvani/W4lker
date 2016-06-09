@@ -125,6 +125,7 @@ class SerialComms(Thread):
         """
         sends serial servo move message, and waits for it's answer.
         """
+        print "batata"
         self.serwrite(">$a")
         self.serwrite(chr(servo))
         self.send_16(pos)

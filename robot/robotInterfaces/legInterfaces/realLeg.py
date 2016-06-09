@@ -17,12 +17,20 @@ class RealLeg(Leg):
         self.tibiaServo.set_angle_limits(-55, 90)
         # viewer.create()
 
+        self.ydirection = -1 if "right" in self.name else 1
+
+        #self.shoulderAngle = True if self.name in ["rear_right","front_left"] else False
+        #self.offset = pi/2 if self.shoulderAngle else 0
 
     def move_to_angle(self, shoulderAngle, femurAngle, tibiaAngle):
         """
         Moves joints to specified angles
         """
         self.check_limits(shoulderAngle, femurAngle, tibiaAngle)
+        #if self.shoulderAngle:
+            #self.panServo.move_to_angle(-shoulderAngle - self.offset)
+        #else:
         self.panServo.move_to_angle(shoulderAngle)
-        self.femurServo.move_to_angle(femurAngle)
-        self.tibiaServo.move_to_angle(tibiaAngle )
+
+        self.femurServo.move_to_angle(femurAngle*self.ydirection)
+        self.tibiaServo.move_to_angle(tibiaAngle)

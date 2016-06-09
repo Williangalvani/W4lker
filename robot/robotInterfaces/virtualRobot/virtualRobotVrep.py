@@ -6,8 +6,9 @@ from robot.robotInterfaces.genericRobot import Robot
 from robot.robotInterfaces.legInterfaces.virtualLegVrep import VirtualLegVrep
 
 from vreptest import vrep
-
-
+import numpy as np
+import cv2
+import time
 
 class VirtualRobotVrep(Robot):
     width = robotData.width
@@ -21,6 +22,7 @@ class VirtualRobotVrep(Robot):
         vrep.simxStartSimulation(self.clientID,vrep.simx_opmode_oneshot)
 
         self.legs = self.load_legs()
+        self.camera = self.load_camera()
         self.i = 0
         vrep.simxSynchronous(self.clientID, True)
         print "connected with id ", self.clientID
@@ -44,6 +46,19 @@ class VirtualRobotVrep(Robot):
 
             return fl_leg, fr_leg, rr_leg, rl_leg
         return None
+
+    def load_camera(self):
+        if self.clientID != -1:
+            errorCode, handles, intData, floatData, array = vrep.simxGetObjectGroupData(self.clientID,
+                                                                                        vrep.sim_appobj_object_type,
+                                                                                        0,
+                                                                                        vrep.simx_opmode_oneshot_wait)
+            data = dict(zip(array, handles))
+            handle= dict((key, value) for key, value in data.iteritems() if key == "Vision_sensor")["Vision_sensor"]
+
+            vrep.simxGetVisionSensorImage(self.clientID, handle, 1, vrep.simx_opmode_streaming)
+            return handle
+
 
     def load_legs(self):
         width = self.width
@@ -85,3 +100,24 @@ class VirtualRobotVrep(Robot):
 
     def disconnect(self):
         pass
+
+
+
+    def _read_camera(self):
+        data = vrep.simxGetVisionSensorImage(self.clientID,self.camera,1,vrep.simx_opmode_buffer)
+        if data[0] == vrep.simx_return_ok :
+            return data
+        return None
+
+    def get_image_from_camera(self):
+        """
+        Loads image from camera.
+        :return:
+        """
+        img = self._read_camera()
+        if img is not None:
+            size = img[1][0]
+            img = np.array(img[2], dtype='uint8').reshape((size,size))
+            return img
+        else:
+            return None

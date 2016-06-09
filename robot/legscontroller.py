@@ -3,7 +3,7 @@ from robot.gaits import TrotGait, TrotGait
 
 __author__ = 'will'
 
-import math
+from math import pi
 from math import radians as d2r
 from robot.tranforms import rotate
 from robot import robotData
@@ -24,6 +24,8 @@ class RobotController():
         self.startTime = time.time()
         self.trotgait = TrotGait(self.robot)
         self.trotgait.reset()
+        self.inputs = [self.read_joystick, self.read_keyboard]
+        self.camera_handler = None
 
     def keep_feet_horizontal(self):
         """
@@ -98,17 +100,27 @@ class RobotController():
         """
         runs one iteration of the code, usually called in a loop
         """
-        try:
-            self.read_joystick()
-        except Exception, e:
-            try:
-                 self.read_keyboard()
-            except Exception as e:
-                 print("could not read keyboard:", e)
 
+        for input in self.inputs:
+            try:
+                input()
+            except Exception, e:
+                print e
+
+        start = time.time()
+        if self.camera_handler:
+            self.camera_handler(self.robot.get_image_from_camera())
+        print "took here ", time.time() - start
+        print "done"
+
+        #self.move_legs_to_angles(pi/4, 0, 0)
         self.trot()
         self.robot.finish_iteration()
-        time.sleep(0.005)
+
+
+
+
+
 
     def read_joystick(self):
         if not self.joystick:

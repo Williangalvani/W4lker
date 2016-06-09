@@ -12,7 +12,7 @@ tibiaServoLimits = (-55, 90)
 shoulderServoLimits = [-80, 80]
 
 #rate to  transform pwm pulse to degrees
-genericServoRate = -13.88
+genericServoRate = -10
 
 
 totalDistance = femurLength+tibiaLength

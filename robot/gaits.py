@@ -87,6 +87,6 @@ class TrotGait(Gait):
 
         #print time.time()
 
-    def get_rotated_leg_resting_positions(self,leg,drot):
-        rotx = rotateAroundCenter(leg.resting_position,"x",drot[0])
-        return rotateAroundCenter(rotx,"y",drot[1])
+    def get_rotated_leg_resting_positions(self, leg, drot):
+        rotx = rotateAroundCenter(leg.resting_position, "x", drot[0])
+        return rotateAroundCenter(rotx, "y", drot[1])

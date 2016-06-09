@@ -18,7 +18,7 @@ void setup()
 imu_setup();
   for(int i=0;i<n_servos;i++)
   {
-    servo[i].attach(i);
+    servo[i].attach(i+2);
     servo[i].writeMicroseconds(servos_pos[i]);
   }
   Serial.begin(115200);
@@ -41,7 +41,7 @@ void write_to_servo(int nservo, int value)
 
 void loop()
 {
-    imu_loop();
+    //imu_loop();
     handleSerial();
 }
 

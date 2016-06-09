@@ -62,21 +62,21 @@ class RealRobot(Robot):
         self.serial = SerialComms()
         print("created new RealRobot attached to:", self.serial)
         serial = self.serial
-        self.servos = [Servo(pin=2, rate=-RATE, pos0=1500, serial=serial),
+        self.servos = [Servo(pin=0, rate=RATE, pos0=1500, serial=serial),
+                       Servo(pin=1, rate=-RATE, pos0=1500, serial=serial),
+                       Servo(pin=2, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=3, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=4, rate=RATE, pos0=1500, serial=serial),
+                       Servo(pin=4, rate=-RATE, pos0=1500, serial=serial),
                        Servo(pin=5, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=6, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=7, rate=-RATE, pos0=1500, serial=serial),
-                       Servo(pin=8, rate=RATE, pos0=1500, serial=serial),
+                       Servo(pin=7, rate=RATE, pos0=1500, serial=serial),
+                       Servo(pin=8, rate=-RATE, pos0=1500, serial=serial),
                        Servo(pin=9, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=10, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=11, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=12, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=13, rate=RATE, pos0=1500, serial=serial)]
+                       Servo(pin=11, rate=-RATE, pos0=1500, serial=serial)]
         servos = self.servos
         rests = robotData.legs_resting_positions
-        self.legs = {"front_left": RealLeg("front_left", (length / 2, width / 2, heigth), servos[1], servos[0], servos[2], rests[0]),
+        self.legs = {"front_left": RealLeg("front_left", (length / 2, width / 2, heigth), servos[0], servos[1], servos[2], rests[0]),
                      "front_right": RealLeg("front_right", (length/ 2,  -width/2, heigth), servos[3], servos[4], servos[5], rests[1]),
                      "rear_right" : RealLeg("rear_right", (-length/2, -width/2, heigth), servos[6], servos[7], servos[8], rests[2]),
                      "rear_left"  : RealLeg("rear_left", (-length/2, width/2, heigth), servos[9], servos[10], servos[11], rests[3])}
@@ -121,7 +121,9 @@ class RealRobot(Robot):
         pass
 
     def move_legs_to_angles(self, angles):
-        raise NotImplementedError()
+        for leg in self.legs.items():
+            leg[1].move_to_angle(*angles)
+
 
     def disconnect(self):
         """

@@ -63,7 +63,7 @@ class Joystick(threading.Thread):
         while True:
 
 
-            time.sleep(0.05)
+            #time.sleep(0.01)
 
             # # necessary for pygame to read the joystick
             for event in pygame.event.get():

@@ -5,7 +5,7 @@ __author__ = 'will'
 import serial
 import time
 
-ser = serial.Serial(port='/dev/ttyUSB0',
+ser = serial.Serial(port='/dev/ttyUSB1',
                     baudrate=115200,
                     timeout=0.0001)
 

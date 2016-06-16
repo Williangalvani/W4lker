@@ -15,7 +15,7 @@ class RobotController():
     def __init__(self, robot):
         self.joystick = None
         self.robot = robot
-        self.dx = 100
+        self.dx = 10
         self.dy = 0
         self.dz = 0
         self.drot = [0, 0, 0]

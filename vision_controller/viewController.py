@@ -39,4 +39,4 @@ class ViewController():
                 self.controller.dx = x
 
                 print x,y
-
+        print "image handling took", time.time() - start

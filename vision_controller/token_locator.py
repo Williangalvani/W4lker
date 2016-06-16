@@ -7,8 +7,8 @@ import numpy as np
 from itertools import tee, izip
 import binascii
 import math
-
-
+import traceback
+import time
 
 
 def pairwise(iterable):
@@ -59,6 +59,10 @@ class QrFinder():
             elif i[0][0] > center[0][0] and i[0][1] > center[0][1]:
                 bottomright = i
 
+
+        if topleft is None or topright is None or bottomleft is None or bottomright is None:
+            return None
+
         targetperspective = np.float32(
             [[[0, 0]], [[100, 0]], [[100, 100]], [[0, 100]]])  ### use points to calculate perspective matrix
         source_perspective = np.float32([topleft, topright, bottomright, bottomleft])
@@ -93,9 +97,12 @@ class QrFinder():
         bottomleft = 1 if self.corrected[bottomleftpos[1]][bottomleftpos[0]] < avg else 0
         cv2.circle(self.corrected, bottomleftpos, 1, (255, 0, 0), 2)
 
+        cv2.namedWindow('corrected')
+        cv2.imshow('corrected', self.corrected)
 
         ### abort if wrong number of markers
         if topleft + topright + bottomright + bottomleft != 3:
+            #print "bad markers!"
             return None
 
         ### detects need of rotation
@@ -125,7 +132,7 @@ class QrFinder():
             self.target = (x,y)
 
 
-    def __init__(self):
+    def __init__(self,standalone=False):
         self.cap = None
         self.corrected = np.zeros((100, 100), np.uint8)  # image with corrected perspective
         cv2.namedWindow('contours')
@@ -133,11 +140,33 @@ class QrFinder():
         self.target = None
         self.center = None
         self.finalAngle = None
+        self.standalone = standalone
+        if standalone:
+
+            try:
+                self.cap = cv2.VideoCapture(0)  # open first camera?
+                self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280);
+                self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768);
+            except:
+                print "could not open camera!"
+
+            cv2.namedWindow('edge')
+
+            while True:
+                flag, self.img = self.cap.read()  # read a frame
+                self.find_code(self.img)
+            cv2.destroyAllWindows()
+
+
+
 
     def find_code(self, img):
         h, w = img.shape[:2]
 
-        gray = img
+        if self.standalone:
+            gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+        else:
+            gray = img
         thrs1 = 2000#cv2.getTrackbarPos('thrs1', 'edge')
         thrs2 = 4000#cv2.getTrackbarPos('thrs2', 'edge')
         edge = cv2.Canny(gray, thrs1, thrs2, apertureSize=5)
@@ -154,29 +183,32 @@ class QrFinder():
 
         selected = []
         # **[Next, Previous, First_Child, Parent]**
-        for c, h in zip(contours, hierarchy[0]):
-            if h[0] == -1 and h[1] == -1:
-                kid = h[2]
-                if kid != -1:
-                    kidh = hierarchy[0][kid]
-                    if kidh[0] == -1 and kidh[1] == -1:  ### only checking for nested circles, without brothers
-                        selected.append(c)
+        if hierarchy is not None:
+            for c, h in zip(contours, hierarchy[0]):
+                if h[0] == -1 and h[1] == -1:
+                    kid = h[2]
+                    if kid != -1:
+                        kidh = hierarchy[0][kid]
+                        if kidh[0] == -1 and kidh[1] == -1:  ### only checking for nested circles, without brothers
+                            selected.append(c)
 
-        cv2.drawContours(vis, selected, -1, (255, 0, 0), 2, cv2.LINE_AA)
-        for candidate in selected:
-            try:
-                if self.try_to_decode(candidate, gray, vis):
-                    break
-            except Exception, e:
-                print e
+            cv2.drawContours(vis, selected, -1, (255, 0, 0), 2, cv2.LINE_AA)
+            for candidate in selected:
+                try:
+                    if self.try_to_decode(candidate, gray, vis):
+                        break
+                except Exception, e:
 
-        if self.center is not None and self.finalAngle is not None:
-            p2 = (int(self.center[0][0]+math.cos(math.radians(self.finalAngle))*50),
-                  int(self.center[0][1]+math.sin(math.radians(self.finalAngle))*50))
-            cv2.line(vis, tuple(self.center[0]), tuple(p2), 255)
+                    traceback.print_exc()
+                    print e
+
+            if self.center is not None and self.finalAngle is not None:
+                p2 = (int(self.center[0][0]+math.cos(math.radians(self.finalAngle))*150),
+                      int(self.center[0][1]+math.sin(math.radians(self.finalAngle))*150))
+                cv2.line(vis, tuple(self.center[0]), tuple(p2), 255,3)
 
         if self.target is not None:
-            cv2.circle(vis, self.target, 3, 0, 2)
+            cv2.circle(vis, self.target, 5, 255, 2)
 
 
         cv2.imshow('contours', vis)
@@ -186,4 +218,7 @@ class QrFinder():
             exit()
 
 if __name__ == '__main__':
-    finder = QrFinder()
+
+
+    cv2.destroyAllWindows()
+    finder = QrFinder(True)

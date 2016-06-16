@@ -104,8 +104,10 @@ class VirtualRobotVrep(Robot):
 
 
     def _read_camera(self):
-        data = vrep.simxGetVisionSensorImage(self.clientID,self.camera,1,vrep.simx_opmode_buffer)
+        #start = time.time()
+        data = vrep.simxGetVisionSensorImage(self.clientID, self.camera, 1, vrep.simx_opmode_buffer)
         if data[0] == vrep.simx_return_ok :
+         #   print "image getting took: ", time.time() - start
             return data
         return None
 
@@ -114,10 +116,12 @@ class VirtualRobotVrep(Robot):
         Loads image from camera.
         :return:
         """
+
         img = self._read_camera()
         if img is not None:
             size = img[1][0]
             img = np.array(img[2], dtype='uint8').reshape((size,size))
+
             return img
         else:
             return None

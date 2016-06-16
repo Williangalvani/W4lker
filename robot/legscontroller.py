@@ -101,11 +101,11 @@ class RobotController():
         runs one iteration of the code, usually called in a loop
         """
 
-        start = time.time()
+        #start = time.time()
         if self.camera_handler:
             self.camera_handler(self.robot.get_image_from_camera())
-        print "took here ", time.time() - start
-        print "done"
+        #print "took here ", time.time() - start
+        #print "done"
 
         #self.move_legs_to_angles(pi/4, 0, 0)
         self.trot()

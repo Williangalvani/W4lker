@@ -95,9 +95,9 @@ class Leg():
         """
         Checks if the desired angles are inside the physically possible constraints.
         """
-        shoulderAngle = degrees(shoulderAngle)
-        femurAngle = degrees(femurAngle)
-        tibiaAngle = degrees(tibiaAngle)
+        #shoulderAngle = degrees(shoulderAngle)
+        #femurAngle = degrees(femurAngle)
+        #tibiaAngle = degrees(tibiaAngle)
 
         femurServoLimits = robotData.femurServoLimits
         shoulderServoLimits = robotData.shoulderServoLimits

@@ -15,6 +15,7 @@ class RealLeg(Leg):
         self.femurServo = femurServo
         self.femurServo.set_angle_limits(-90, 65)
         self.tibiaServo.set_angle_limits(-55, 90)
+
         # viewer.create()
 
         self.ydirection = -1 if "right" in self.name else 1

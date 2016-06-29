@@ -19,7 +19,8 @@ class SerialComms(Thread):
     def __init__(self):
         print ("starting serial")
         Thread.__init__(self)
-        self.ser = serial.Serial(port='/dev/ttyUSB0',
+        #self.ser = serial.Serial(port='/dev/ttyUSB0',
+        self.ser = serial.Serial(port='/dev/ttyTCP0',
                                  baudrate=115200,
                                  timeout=0.0001)
         self.input_pins = 15
@@ -125,7 +126,7 @@ class SerialComms(Thread):
         """
         sends serial servo move message, and waits for it's answer.
         """
-        print "batata"
+        #print "servo: ", servo, " pos:", pos
         self.serwrite(">$a")
         self.serwrite(chr(servo))
         self.send_16(pos)

@@ -66,7 +66,7 @@ class RealRobot(Robot):
                        Servo(pin=1, rate=-RATE, pos0=1500, serial=serial),
                        Servo(pin=2, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=3, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=4, rate=-RATE, pos0=1500, serial=serial),
+                       Servo(pin=4, rate=-RATE, pos0=1300, serial=serial),
                        Servo(pin=5, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=6, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=7, rate=-RATE, pos0=1500, serial=serial),
@@ -120,6 +120,12 @@ class RealRobot(Robot):
 
     def load_legs(self):
         pass
+
+    def move_leg_to_angles(self,leg, angles):
+        try:
+            self.legs[leg].move_to_angle(*angles)
+        except Exception, e:
+            print e
 
     def move_legs_to_angles(self, angles):
         for leg in self.legs.items():

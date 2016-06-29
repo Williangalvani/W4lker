@@ -96,6 +96,9 @@ class RobotController():
         """
         self.robot.move_legs_to_angles([a, b, c])
 
+    def move_leg_to_angles(self, leg, angles):
+        self.robot.move_leg_to_angles(leg, angles)
+
     def iterate(self):
         """
         runs one iteration of the code, usually called in a loop

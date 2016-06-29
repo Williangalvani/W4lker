@@ -10,9 +10,9 @@ import sys
 robot1 = None
 try:
     robot1 = VirtualRobot()
-except:
-    print "no virtual robot" \
-          ""
+except Exception, e:
+    print "no virtual robot" , e
+
 try:
     robot2 = RealRobot()
 except Exception, e:
@@ -33,7 +33,6 @@ if robot2 is not None:
 print("script ready!")
 for controller in controllers:
     controller.start()
-
 
 
 from gui.manualinterface import MyWindowClass

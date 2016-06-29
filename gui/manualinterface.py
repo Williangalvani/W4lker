@@ -31,12 +31,21 @@ class MyWindowClass(QtGui.QMainWindow, form_class):
         self.rr3.valueChanged.connect(self.update_pos)  # Bind the event handlers
 
     def update_pos(self):
-        fl = [radians(self.fl1.value()), radians(self.fl2.value()), radians(self.fl3.value())]
-        fr = [radians(self.fr1.value()), radians(self.fr2.value()), radians(self.fr3.value())]
-        rl = [radians(self.rl1.value()), radians(self.rl2.value()), radians(self.rl3.value())]
-        rr = [radians(self.rl1.value()), radians(self.rl2.value()), radians(self.rl3.value())]
+        if self.lock.isChecked():
+            fl = [radians(self.fl1.value()), radians(self.fl2.value()), radians(self.fl3.value())]
+            fr = fl
+            rl = fl
+            rr = fl
+        else:
+            fl = [radians(self.fl1.value()), radians(self.fl2.value()), radians(self.fl3.value())]
+            fr = [radians(self.fr1.value()), radians(self.fr2.value()), radians(self.fr3.value())]
+            rl = [radians(self.rl1.value()), radians(self.rl2.value()), radians(self.rl3.value())]
+            rr = [radians(self.rr1.value()), radians(self.rr2.value()), radians(self.rr3.value())]
         for controller in self.controllers:
-            controller.move_legs_to_angles(*fl)
+            controller.move_leg_to_angles("front_left",  fl)
+            controller.move_leg_to_angles("front_right", fr)
+            controller.move_leg_to_angles("rear_left", rl)
+            controller.move_leg_to_angles("rear_right", rr)
 
             controller.robot.finish_iteration()
 

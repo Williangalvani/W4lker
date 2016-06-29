@@ -80,6 +80,13 @@ class VirtualRobotVrep(Robot):
             # print leg[1]
             leg[1].move_to_angle(*angles)
 
+    def move_leg_to_angles(self, leg, angles):
+        try:
+            self.legs[leg].move_to_angle(*angles)
+        except Exception, e:
+            print e
+
+
     def read_feet(self):
             return [0, 0, 0, 0]
 

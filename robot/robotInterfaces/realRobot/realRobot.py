@@ -5,6 +5,7 @@ from robot import robotData
 from robot.robotInterfaces.legInterfaces.realLeg import RealLeg
 from robot.robotInterfaces.realRobot.serialServoCommander import SerialComms
 from robot.robotInterfaces.genericRobot import Robot
+import cv2
 
 RATE = robotData.genericServoRate
 
@@ -70,9 +71,9 @@ class RealRobot(Robot):
                        Servo(pin=5, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=6, rate=RATE, pos0=1500, serial=serial),
                        Servo(pin=7, rate=-RATE, pos0=1500, serial=serial),
-                       Servo(pin=8, rate=-RATE, pos0=1500, serial=serial),
+                       Servo(pin=8, rate=-RATE, pos0=1700, serial=serial),
                        Servo(pin=9, rate=RATE, pos0=1500, serial=serial),
-                       Servo(pin=10, rate=RATE, pos0=1500, serial=serial),
+                       Servo(pin=10, rate=-RATE, pos0=1500, serial=serial),
                        Servo(pin=11, rate=-RATE, pos0=1500, serial=serial)]
 
         servos = self.servos
@@ -82,6 +83,13 @@ class RealRobot(Robot):
                      "rear_right" : RealLeg("rear_right", (-length/2, -width/2, heigth), servos[6], servos[7], servos[8], rests[2]),
                      "rear_left"  : RealLeg("rear_left", (-length/2, width/2, heigth), servos[3], servos[4], servos[5], rests[3])}
         self.feet = [False, False, False, False]
+
+        try:
+            self.cap = cv2.VideoCapture(1)  # open first camera?
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280);
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 768);
+        except:
+            print "could not open camera"
 
     def read_feet(self):
         """
@@ -137,3 +145,16 @@ class RealRobot(Robot):
         disconnects serial.
         """
         self.serial.running = False
+
+    def get_image_from_camera(self):
+        """
+        Loads image from camera.
+        :return:
+        """
+        try:
+            flag, self.img = self.cap.read()  # read a frame
+            return self.img
+        except:
+            print "could not read image from camera"
+
+

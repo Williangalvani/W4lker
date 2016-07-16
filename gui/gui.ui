@@ -23,6 +23,12 @@
       <height>160</height>
      </rect>
     </property>
+    <property name="minimum">
+     <number>-80</number>
+    </property>
+    <property name="maximum">
+     <number>80</number>
+    </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
     </property>
@@ -35,6 +41,12 @@
       <width>18</width>
       <height>160</height>
      </rect>
+    </property>
+    <property name="minimum">
+     <number>-80</number>
+    </property>
+    <property name="maximum">
+     <number>80</number>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -49,6 +61,12 @@
       <height>160</height>
      </rect>
     </property>
+    <property name="minimum">
+     <number>-80</number>
+    </property>
+    <property name="maximum">
+     <number>80</number>
+    </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
     </property>
@@ -61,6 +79,12 @@
       <width>18</width>
       <height>160</height>
      </rect>
+    </property>
+    <property name="minimum">
+     <number>-80</number>
+    </property>
+    <property name="maximum">
+     <number>80</number>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -75,6 +99,15 @@
       <height>160</height>
      </rect>
     </property>
+    <property name="minimum">
+     <number>-80</number>
+    </property>
+    <property name="maximum">
+     <number>80</number>
+    </property>
+    <property name="value">
+     <number>0</number>
+    </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
     </property>
@@ -87,6 +120,12 @@
       <width>18</width>
       <height>160</height>
      </rect>
+    </property>
+    <property name="minimum">
+     <number>-80</number>
+    </property>
+    <property name="maximum">
+     <number>80</number>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -102,10 +141,10 @@
      </rect>
     </property>
     <property name="minimum">
-     <number>-50</number>
+     <number>-80</number>
     </property>
     <property name="maximum">
-     <number>50</number>
+     <number>80</number>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -121,10 +160,10 @@
      </rect>
     </property>
     <property name="minimum">
-     <number>-50</number>
+     <number>-80</number>
     </property>
     <property name="maximum">
-     <number>50</number>
+     <number>80</number>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -140,10 +179,10 @@
      </rect>
     </property>
     <property name="minimum">
-     <number>-50</number>
+     <number>-80</number>
     </property>
     <property name="maximum">
-     <number>50</number>
+     <number>80</number>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -158,6 +197,12 @@
       <height>160</height>
      </rect>
     </property>
+    <property name="minimum">
+     <number>-80</number>
+    </property>
+    <property name="maximum">
+     <number>80</number>
+    </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
     </property>
@@ -171,6 +216,12 @@
       <height>160</height>
      </rect>
     </property>
+    <property name="minimum">
+     <number>-80</number>
+    </property>
+    <property name="maximum">
+     <number>80</number>
+    </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
     </property>
@@ -183,6 +234,12 @@
       <width>18</width>
       <height>160</height>
      </rect>
+    </property>
+    <property name="minimum">
+     <number>-80</number>
+    </property>
+    <property name="maximum">
+     <number>80</number>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>

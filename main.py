@@ -28,6 +28,7 @@ if robot1 is not None:
 
 if robot2 is not None:
     controller2 = legscontroller.RobotController(robot2)
+    viewcontroller = ViewController(controller2, robot2)
     controllers.append(controller2)
 
 print("script ready!")
@@ -35,9 +36,20 @@ for controller in controllers:
     controller.start()
 
 
-from gui.manualinterface import MyWindowClass
+manual = False
 
-app = QtGui.QApplication(sys.argv)
-myWindow = MyWindowClass(controllers=controllers)
-myWindow.show()
-app.exec_()
+if not manual:
+    while True:
+        for controller in controllers:
+            controller.iterate()
+            time.sleep(0.04)
+
+else:
+
+    from gui.manualinterface import MyWindowClass
+    app = QtGui.QApplication(sys.argv)
+    myWindow = MyWindowClass(controllers=controllers)
+    myWindow.show()
+    app.exec_()
+
+

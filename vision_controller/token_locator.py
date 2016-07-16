@@ -36,9 +36,9 @@ class QrFinder():
             approx = cv2.approxPolyDP(candidate, epsilon, True)
 
         ### draw on screen
-        for a, b in pairwise(approx):
-            cv2.line(target, tuple(a[0]), tuple(b[0]), (0, 0, 255), 3)
-        cv2.line(target, tuple(approx[-1][0]), tuple(approx[0][0]), (0, 0, 255), 3)
+        # for a, b in pairwise(approx):
+        #     cv2.line(target, tuple(a[0]), tuple(b[0]), (0, 0, 255), 3)
+        # cv2.line(target, tuple(approx[-1][0]), tuple(approx[0][0]), (0, 0, 255), 3)
 
 
         ## detect center of mass, and each corner before decoding
@@ -141,6 +141,10 @@ class QrFinder():
         self.center = None
         self.finalAngle = None
         self.standalone = standalone
+        self.real = False
+        cv2.namedWindow('edge')
+        cv2.createTrackbar('thrs1', 'edge', 5000, 5000, nothing)
+        cv2.createTrackbar('thrs2', 'edge', 1600, 5000, nothing)
         if standalone:
 
             try:
@@ -150,11 +154,13 @@ class QrFinder():
             except:
                 print "could not open camera!"
 
-            cv2.namedWindow('edge')
 
             while True:
-                flag, self.img = self.cap.read()  # read a frame
-                self.find_code(self.img)
+                try:
+                    flag, self.img = self.cap.read()  # read a frame
+                    self.find_code(self.img)
+                except:
+                    print "bad image!"
             cv2.destroyAllWindows()
 
 
@@ -162,18 +168,17 @@ class QrFinder():
 
     def find_code(self, img):
         h, w = img.shape[:2]
-
-        if self.standalone:
-            gray = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+        if self.standalone or self.real:
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         else:
             gray = img
-        thrs1 = 2000#cv2.getTrackbarPos('thrs1', 'edge')
-        thrs2 = 4000#cv2.getTrackbarPos('thrs2', 'edge')
+        thrs1 = cv2.getTrackbarPos('thrs1', 'edge')
+        thrs2 = cv2.getTrackbarPos('thrs2', 'edge')
         edge = cv2.Canny(gray, thrs1, thrs2, apertureSize=5)
         vis = img.copy()
         vis /= 2
         vis[edge != 0] = 0
-        #cv2.imshow('edge', vis)
+        cv2.imshow('edge', edge)
 
         vis2 = np.zeros((h, w), np.uint8)
         vis2[edge != 0] = 255
@@ -192,10 +197,12 @@ class QrFinder():
                         if kidh[0] == -1 and kidh[1] == -1:  ### only checking for nested circles, without brothers
                             selected.append(c)
 
-            cv2.drawContours(vis, selected, -1, (255, 0, 0), 2, cv2.LINE_AA)
+            #cv2.drawContours(vis, selected, -1, (255, 0, 0), 1, cv2.LINE_AA)
             for candidate in selected:
                 try:
                     if self.try_to_decode(candidate, gray, vis):
+                        cv2.drawContours(vis, [candidate], -1, (0, 255, 0), 2, cv2.LINE_AA)
+
                         break
                 except Exception, e:
 
@@ -205,7 +212,7 @@ class QrFinder():
             if self.center is not None and self.finalAngle is not None:
                 p2 = (int(self.center[0][0]+math.cos(math.radians(self.finalAngle))*150),
                       int(self.center[0][1]+math.sin(math.radians(self.finalAngle))*150))
-                cv2.line(vis, tuple(self.center[0]), tuple(p2), 255,3)
+                cv2.line(vis, tuple(self.center[0]), tuple(p2), 255, 3)
 
         if self.target is not None:
             cv2.circle(vis, self.target, 5, 255, 2)

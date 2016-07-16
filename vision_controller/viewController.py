@@ -6,12 +6,13 @@ from token_locator import QrFinder
 from math import radians, sin, cos
 
 class ViewController():
-    def __init__(self, controller, robot):
+    def __init__(self, controller, robot, real=False):
         self.controller = controller
         self.robot = robot
         self.controller.camera_handler = self.handle_image
 
         self.token_locator = QrFinder()
+        self.token_locator.real = True
 
 
 
@@ -32,11 +33,11 @@ class ViewController():
                 angle = radians(angle)
                 rex = cos(angle)*ex + sin(angle)*ey
                 rey = -sin(angle)*ex + cos(angle)*ey
-                x = max(min(10*rex, 100), -100)
-                y = max(min(10*rey, 100), -100)
+                x = max(min(1*rex, 100), -100)
+                y = max(min(1*rey, 100), -100)
 
-                self.controller.dy = y
-                self.controller.dx = x
+                self.controller.dy = 0.95*self.controller.dy + 0.05*-y
+                self.controller.dx = 0.95*self.controller.dx + 0.05* x
 
                 print x,y
-        print "image handling took", time.time() - start
+        #print "image handling took", time.time() - start
